@@ -1,0 +1,98 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>请假/公出申请列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />	
+	<link rel="stylesheet" type="text/css" href="/css/style.css"> 
+	<script type="text/javascript" src="/My97DatePicker/WdatePicker.js"></script>	
+	
+  </head>
+  
+  <body>
+  	<div class="box-positon">
+		<div class="rpos">当前位置: 请假/公出申请列表 </div>
+		<div class="clear"></div>
+	</div>
+
+	<div style="margin:10px 42px;">
+	<form action="/extra/show.do" method="post">
+	<strong>请选择部门 ：</strong>&nbsp;&nbsp;<select name="deptId">
+				<c:choose>
+					<c:when test="${sessionScope.login_user.permission == 2}">
+						<option value="">---请选择---</option>
+						<c:forEach items="${departMap}" var="map">
+							<option <c:if test="${deptId == map.key }">selected</c:if> value="${map.key }">${map.value }</option>
+						</c:forEach>
+					</c:when>
+					<c:otherwise>
+						<option value="${deptId }">${departMap[deptId] }</option>
+					</c:otherwise>
+				</c:choose>						
+			</select> &nbsp;&nbsp;<strong>状态：</strong>
+			<select name="flag">
+				<option value="">---请选择---</option>
+				<option <c:if test="${flag == 0}" >selected</c:if> value="0">未审核</option>
+				<option <c:if test="${flag == 1}" >selected</c:if> value="1">已审核</option>
+			</select>&nbsp;&nbsp;
+			<strong>申请时间段 ：</strong> <input id="startTime" name="startTime"  value="<c:if test="${sTime != null }">${sTime }</c:if>" type="text" class="input_box" size="30" onfocus="WdatePicker({lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss'})"/> 
+			&nbsp;<strong>到</strong>&nbsp; <input id="endTime" name="endTime" value="<c:if test="${eTime != null }">${eTime }</c:if>" type="text" class="input_box" size="30" onfocus="WdatePicker({lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+			<input type="submit" value="查询" class="sblue_btn" />
+	</form>		
+	</div>	
+	<table width="95%" border="0" align="center" cellpadding="3" cellspacing="1" bgcolor="#555555">
+        <tr background="../images/bg.gif">
+            <td height="26" colspan="8">
+                &nbsp;&nbsp;<strong style="color: #98CAEF">员工: <span style="color:yellow;">${userMap[userId] }</span> ----请假/公出申请信息</strong>
+            </td>                         
+        </tr>     
+        <tr>
+            <td bgcolor="#FFFFFF" id="_chl_0" colspan="2">
+				<table width="100%" border="0" cellpadding="3" cellspacing="1" bgcolor="#CCCCCC">
+				    <tr bgcolor="#FFFFFF" style="font-weight: bold" background="../images/search.gif">
+				    	<td align="center">ID</td>
+				    	<td align="center">申请人</td>
+				    	<td align="center">(请假/公出) 起始时间</td>
+				    	<td align="center">(请假/公出) 截止时间</td>
+				    	<td align="center">请假类型</td>
+				    	<td width="20%" align="center">原因</td>
+				    	<td align="center">状态</td>
+				    	<td align="center">审核人</td>
+				    	<td align="center">申请时间</td>
+				    	<td align="center" width="15%">操作选项</td>				    	
+				    </tr>
+				    <c:forEach items="${applylist}" var="obj">
+				    	<tr bgcolor="#FFFFFF" onMouseOver="style.backgroundColor='#fff8d8'" onMouseOut="style.backgroundColor='#ffffff';">
+				    		<td align="center">${obj.id }</td>
+				    		<td align="center">${userMap[obj.userId] }</td>
+				    		<td align="center">${obj.startTime }</td>
+				    		<td align="center">${obj.endTime }</td>
+				    		<td align="center">${leaveTypeMap[obj.dataId] }</td>
+				    		<td align="center">${obj.reason }</td>
+				    		<td align="center"><c:choose><c:when test="${obj.status == 0}"><span style="color:red;">未审核</span></c:when><c:otherwise><span style="color:green;">已审核</span></c:otherwise></c:choose></td>
+				    		<td align="center"><c:choose><c:when test="${obj.checkerId == null}">-</c:when><c:otherwise>${userMap[obj.checkerId]}</c:otherwise></c:choose><br></td>
+				    		<td align="center">${obj.date }</td>
+				    		<td align="center">
+				    			<c:choose><c:when test="${(sessionScope.login_user.permission == 2 && obj.status == 0) || (deptMap[sessionScope.login_user.deptId] == deptMap[userDefaultDeptMap[obj.userId]] && sessionScope.login_user.permission == 1 && obj.status == 0)}">
+				    			<input type="button" class="sblue_btn" value="审核" onclick="javascript:if(confirm('确认提交该审核记录吗?')) { location.href='${requestContext.request.contextPath}/extra/checkLeave.do?id=${obj.id }&checkId=${sessionScope.login_user.id }';}" />
+				    			&nbsp;&nbsp;<input type="button" class="red_btn" value="撤销" onclick="javascript:if(confirm('确认撤销该审核记录吗?')) { location.href='${requestContext.request.contextPath}/extra/delLeaveReq.do?id=${obj.id }';}"/>
+				    			</c:when><c:otherwise>-</c:otherwise></c:choose> 		    			
+				    		</td>
+				    	</tr>				    	
+				    </c:forEach>
+				</table>
+			</td>
+		</tr>
+	</table>	
+	<br/>		    
+  </body>
+</html>

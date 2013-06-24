@@ -1,0 +1,5 @@
+gatewayId=modem.com3
+comPort=COM3
+baudRate=9600
+manufacturer=wavecom
+model=

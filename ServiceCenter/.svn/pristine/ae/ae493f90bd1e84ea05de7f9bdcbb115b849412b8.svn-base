@@ -1,0 +1,150 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+}
+
+ul, li {
+    list-style-type: none;
+}
+
+body {
+    font-size: 13px;
+    background-color: #999999;
+}
+
+#selectNo {
+    width: 700px;
+    margin: 10px auto;
+}
+
+    #selectNo a {
+        text-decoration: none;
+    }
+#msg {
+}
+
+#msg h3 {
+    color:red;
+    font-size:22pt;
+}
+
+#msg p {
+    font-size:40pt;
+    text-align:left;
+}
+
+#numbers {
+    width: 700px;
+    margin: 10px auto;
+    font-size: 22pt;
+}
+
+.deleteNo {
+    width: 16px;
+    height: 16px;
+    background: url(images/ui-icons_d8e7f3_256x240.png) -96px -128px;
+    float: right;
+    cursor: pointer;
+}
+
+    .deleteNo:hover {
+        background: url(images/ui-icons_0078ae_256x240.png) -96px -128px;
+    }
+
+#con {
+    width: 700px;
+    height: 580px;
+    margin: 10px auto;
+    position: relative;
+    border: 1px #666 solid;
+    background-color: #FFFFFF;
+    overflow: hidden;
+}
+
+    #con ul {
+        position: absolute;
+        margin: 10px;
+        top: 0;
+        left: 0;
+        padding: 0;
+    }
+
+        #con ul li {
+            width: 100%;
+            border-bottom: 1px #333333 dotted;
+            padding: 20px 0;
+            overflow: hidden;
+            min-width:680px;
+        }
+
+            #con ul li img {
+                float: left;
+                border: 1px #333333 solid;
+                padding: 2px;
+            }
+
+            #con ul li a {
+                text-decoration: none;
+            }
+
+            #con ul li span {
+                padding-left: 10px;
+                color: red;
+            }
+
+            #con ul li p {
+                margin-left: 68px;
+                line-height: 1.5;
+                padding: 10px;
+                font-size: 22pt;
+            }
+
+.table_bg {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0px 30px 0px;
+    font-family: "微软雅黑";
+}
+
+    .table_bg tr {
+        border: 0;
+    }
+
+    .table_bg td, th {
+        color: #666;
+        font-size: 12px;
+        text-align: center;
+        padding: 5px;
+        vertical-align: middle;
+        border: 1px solid #ccc;
+        height: 40px;
+    }
+
+    .table_bg th, .table_bg th a {
+        background: #dedede;
+        color: #666;
+        font-size: 12px;
+        line-height: 17px;
+        padding: 2px 6px;
+        white-space: nowrap;
+    }
+
+    .table_bg tr td font {
+        color: #690;
+    }
+
+    .table_bg td a {
+        color: #06c;
+        text-decoration: underline;
+    }
+
+        .table_bg td a:hover {
+            color: #666;
+        }
+
+    .table_bg .l {
+        text-align: left;
+        font-family: Verdana;
+        cursor: pointer;
+    }

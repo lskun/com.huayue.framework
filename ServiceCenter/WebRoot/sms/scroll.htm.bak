@@ -1,0 +1,236 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>”新学校“论坛短信互动平台</title>
+    <link type="text/css" rel="stylesheet" href="css/scoll.css" />
+    <link type="text/css" rel="stylesheet" href="css/jquery-ui-1.8.22.custom.css" />
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookies.2.2.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+</head>
+<body>
+    <div id="noList" style="display: none;">
+        <table class="table_bg">
+            <thead>
+                <tr class="l">
+                    <td>选择
+                    </td>
+                    <td>号码
+                    </td>
+                    <td>运营商
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <div id="msg" style="display: none;">
+        <h3></h3>
+        <br />
+        <p></p>
+    </div>
+    <div id="selectNo">
+        <a href="javascript:void(0);" id="selectPhone">选号</a>
+        <a href="javascript:reset();" id="reset">重置</a>
+    </div>
+    <div id="numbers">
+    </div>
+    <div id="con">
+        <ul id="smsContent">
+        </ul>
+    </div>
+    <script type="text/javascript">
+        var scrtime;//滚动定时器
+        var stopScroll = false;
+        var lastNo = '';
+        var selectNos = $.cookies.get('selectNos');
+        if (!selectNos)
+            selectNos = [];
+        else {
+            var html = '';
+            $.each(selectNos, function (i, s) {
+                html += '<div class="displayNo" ><span style="color:#fff">' + s.type + (s.type == '联通' ? '及电信' : '') + '</span>的用户请发短信到<span style="color:#fff">' + s.mobile + "</span><div class='deleteNo' mobile='" + s.mobile + "' ></div></div>";
+            });
+            $('#numbers').html(html);
+            $('.deleteNo').click(deleteNo);
+        }
+
+
+        var host = '';
+        function selectNo(no, type) {
+            for (var i = 0; i < selectNos.length; i++) {
+                var s = selectNos[i];
+                if (s.mobile == no)
+                    return;
+            }
+            selectNos.push({ 'mobile': no, 'type': type });
+        }
+        function deleteNo() {
+            var that = $(this);
+            var mobileNo = that.attr('mobile');
+            $.ajax({
+                url: host + '/servlet/RefreshExcuter?mobiles=' + mobileNo + '&key=1',
+                type: 'get',
+                dataType: 'html',
+                cache: false,
+                success: function (d) {
+                    d = d.replace('\r\n', '');
+                    if (d == 'OK') {
+                        selectNos = $.grep(selectNos, function (cur, i) {
+                            return cur.mobile != mobileNo;
+                        });
+                        that.parent().remove();
+                    }
+                    $.cookies.set('selectNos', selectNos);
+                }
+            });
+        }
+        function getSelectNoStrs() {
+            var str = "";
+            if (selectNos.length == 0)
+                return "";
+            $.each(selectNos, function (i, s) {
+                str += s.mobile + (i == selectNos.length - 1 ? "" : ",");
+            });
+            return str;
+        }
+
+        function reset() {
+            $.ajax({
+                url: host + '/servlet/RefreshExcuter?mobiles=' + getSelectNoStrs(),
+                cache: false,
+                dataType: 'html',
+                type: 'get',
+                success: function (ret) {
+                    ret = ret.replace('\r\n', '');
+                    if (ret == 'OK') {
+                        selectNos = [];
+                        $.cookies.set('selectNos', []);
+                        $('#numbers').html('');
+                    }
+                }
+            });
+        }
+
+        function showMsg(mobile, content) {
+            $('#msg h3').html(mobile);
+            $('#msg p').html(content);
+            stopScroll = true;
+            $('#msg').dialog({
+                modal: true,
+                bgiframe: true,
+                width: 800,
+                height: 400,
+                buttons: {
+                    '确定': function () {
+                        stopScroll = false;
+                        $('#msg').dialog('close');
+                    }
+                },
+                close: function () {
+                    stopScroll = false;
+                }
+            });
+        }
+        $(function () {
+            $.support.cors = true;
+            $('#selectPhone').click(function () {
+                $.ajax({
+                    url: host + '/servlet/UnselectMobiles',
+                    cache: false,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#tableBody').html('');
+                        $.each(data, function (i, item) {
+                            var isExists = false;
+                            $.each(selectNos, function (j, temp) {
+                                if (temp.mobile == item.mobile) {
+                                    isExists = true;
+                                }
+                            });
+                            if (!isExists)
+                                $('<tr class="l"><td><input type="checkbox" id="cb' + item.mobile + '" onclick="selectNo(\'' + item.mobile + '\',\'' + item.type + '\')" ></td><td>' + item.mobile + '</td><td>' + item.type + '</td></tr>').appendTo('#tableBody');
+                        });
+                        $('#noList').dialog({
+                            modal: true, bgiframe: true, buttons: {
+                                '确定': function () {
+                                    var str = '';
+                                    $.each(selectNos, function (i, s) {
+                                        $.ajax({
+                                            url: host + '/servlet/MobileBinder?mobile=' + s.mobile,
+                                            cache: false,
+                                            dataType: 'html',
+                                            type: 'get',
+                                            success: function (data) {
+                                                data = data.replace('\r\n', '');
+                                                if (data == 'OK') {
+                                                    $('<div class="displayNo" ><span style="color:#fff">' + s.type + (s.type == '联通' ? '及电信' : '') + '</span>的用户请发短信到<span style="color:#fff">' + s.mobile + "</span><div class='deleteNo' mobile='" + s.mobile + "'></div></div>").appendTo('#numbers');
+                                                }
+                                                if (i == selectNos.length - 1) {
+                                                    $('#noList').dialog('close');
+                                                    $('.deleteNo').click(deleteNo);
+                                                    $.cookies.set('selectNos', selectNos);
+                                                }
+                                            }
+                                        });
+                                    });
+                                },
+                                '取消': function () { $(this).dialog('close'); }
+                            }
+                        });
+                    }
+                });
+            });
+
+            //抓取短信定时器
+            var fectchtime = setInterval(function () {
+                if (selectNos.length > 0) {
+                    $.ajax({
+                        url: host + '/servlet/InteractiveController?mobiles=' + getSelectNoStrs() + (lastNo == '' ? "" : ("&id=" + lastNo)),
+                        dataType: 'json',
+                        type: 'get',
+                        cache: false,
+                        success: function (data) {
+                            if (data && data.length > 0) {
+                                $.each(data, function (i, sms) {
+                                    if (lastNo == '')
+                                        $('<li id=li' + sms.id + '><img src="css/images/logo_small.png" /><a href="javascript:showMsg(\'' + sms.mobile + '\',\'' + sms.content + '\');"><span class="phoneNo">' + sms.mobile + '：</span><p class="vright">' + sms.content + '</p></a></li>').appendTo('#smsContent');
+                                    else {
+                                        var liLast = $('#con ul').find('li[id="li' + lastNo + '"]');
+                                        $('<li id=li' + sms.id + '><img src="css/images/logo_small.png" /><a href="javascript:showMsg(\'' + sms.mobile + '\',\'' + sms.content + '\');"><span class="phoneNo">' + sms.mobile + '：</span><p class="vright">' + sms.content + '</p></a></li>').insertBefore(liLast);
+                                    }
+                                });
+                                lastNo = data[0].id;
+                            }
+                        }
+                    });
+                }
+            }, 10000);
+            $("#con").hover(function () {
+                clearInterval(scrtime);
+
+            }, function () {
+
+                scrtime = setInterval(function () {
+                    if (!stopScroll) {
+                        if ($('#con ul').height() > $('#con').height()) {
+                            var $ul = $("#con ul");
+                            var liHeight = $ul.find("li:last").height();
+                            $ul.animate({ marginTop: liHeight + 40 + "px" }, 1000, function () {
+                                $ul.find("li:last").prependTo($ul);
+                                $ul.find("li:first").hide();
+                                $ul.css({ marginTop: 0 });
+                                $ul.find("li:first").fadeIn(1000);
+                            });
+                        }
+                    }
+                }, 6000);
+
+            }).trigger("mouseleave");
+        });
+    </script>
+
+</body>
+</html>

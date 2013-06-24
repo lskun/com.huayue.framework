@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace名字必须与Mapper接口名一致 -->
+<mapper namespace="com.huayue.platform.mapper.UserMapper">
+	<sql id="ssql">
+		SELECT 
+			id ,
+			user_name ,
+			password ,
+			depid ,
+			permission ,
+			create_time ,
+			modified_time 
+		FROM sms_user	</sql>
+	<select id="login" resultMap="userMap" parameterType="user">
+		select * from sms_user where user_name = #{name} and password = #{password}
+	</select>
+	<update id="update" parameterType="user">
+		update sms_user set password = #{password} where id = #{id}
+	</update>
+	<select id="findByID" resultMap="userMap" parameterType="int">
+		select * from sms_user where id = #{id}	
+	</select>
+	<select id="findAllUsers" parameterType="map" resultMap="userMap">
+		<include refid="ssql"/>
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="permission != null"> permission = #{permission}</if>
+			 <if test="deptId != null"> AND depid = #{deptId} </if>
+		</trim>
+		ORDER BY id
+	</select>
+	<delete id="deleteByID" parameterType="_int">
+		DELETE FROM sms_user Where id = #{id}
+	</delete>
+	<insert id="addObj" parameterType="user">
+		INSERT INTO sms_user (user_name, password, depid) VALUES (#{name},#{password},#{deptId})
+	</insert>
+	<select id="findAllObjLength" resultType="_int">
+		SELECT count(*) FROM sms_user
+	</select>
+	<select id="findAllObjLengthByParams" parameterType="map" resultType="_int">
+		SELECT count(*) FROM sms_user 
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			 <if test="permission != null"> permission = #{permission}</if>
+			 <if test="deptId != null"> AND depid = #{deptId} </if>
+		</trim>	 
+	</select>
+	<select id="selectForMap" resultType="hashmap" resultMap="userMap">
+		<include refid="ssql"/>
+	</select>
+	<select id="select" resultMap="userMap">
+		SELECT id,user_name,password FROM sms_user
+	</select>
+</mapper>

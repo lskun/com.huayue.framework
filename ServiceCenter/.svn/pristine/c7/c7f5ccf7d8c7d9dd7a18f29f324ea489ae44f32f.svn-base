@@ -1,0 +1,90 @@
+package com.huayue.framework.smslib;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import org.apache.log4j.Logger;
+
+import com.huayue.platform.entity.Message;
+import com.huayue.sms.service.SmsSendService;
+
+
+public class OutboundTaskExcuter implements ServletContextListener{
+	
+	private static final Logger log = Logger.getLogger(OutboundTaskExcuter.class);
+	
+	private static final OutboundTaskExcuter excuter  = new OutboundTaskExcuter();
+	
+	private static final Timer timer = new Timer();
+	
+	private TimerTask task = null;
+	
+	private ArrayList<Message> outboundMessages = null;
+	
+	/**
+	 * 每隔10秒自动获取未发送的短信内容并发送
+	 * @throws Exception
+	 */
+	protected synchronized void timerTask() throws Exception{
+		task = new TimerTask(){
+			public void run(){
+				
+				while(!ParamObj.initModemStatus) {
+					try {
+						Thread.sleep(1000 * 15);
+					} catch (InterruptedException e) {
+						log.error(e);
+					}
+				}
+				
+				SmsSendService service = new SmsSendService();
+				try{					
+					outboundMessages = service.getWaitingOutboundMessages();
+					if(outboundMessages.size() != 0){
+						for(Message msg : outboundMessages){						
+							SendReadMsger sender = SendReadMsger.newInstance();
+							sender.sendMsg(msg.getContent(), msg.getPhoneNumber(),msg.getId() );
+						}
+					}
+				}catch(Exception ex){
+					log.error(ex);
+				}finally{
+					service = null;
+				}
+			}
+		};
+		timer.schedule(task, new java.util.Date(), 10 * 1000);
+	}
+
+	public void contextDestroyed(ServletContextEvent sce) {
+		// TODO Auto-generated method stub
+		log.info("取消任务...");
+		timer.cancel();
+	}
+
+	public void contextInitialized(ServletContextEvent sce) {
+		// TODO Auto-generated method stub		
+
+		try 
+		{
+			SendReadMsger.newInstance();			
+			while(!ParamObj.initModemStatus){
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					log.error(e);
+				}
+			}
+			excuter.timerTask(); 
+		}
+		catch(Exception ex){
+			log.error(ex);
+		}
+		
+		log.info("启动任务完毕...");
+	}
+}

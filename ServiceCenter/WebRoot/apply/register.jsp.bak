@@ -1,0 +1,353 @@
+﻿<%@ page language="java" import="java.util.*" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="web.platform.apply.TokenGen"%>
+<%
+	TokenGen.getInstance().saveToken(request);
+	String s = (String)session.getAttribute(TokenGen.TOKEN_FOR_SUBMIT);
+ %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>      
+    <title>报名申请表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="/css/dev.css">
+	<script type="text/javascript" src="/js/jquery.js"></script>	
+	<style type="text/css">
+	*{margin:0;padding:0;list-style-type:none;}
+	a,img{border:0;}
+	.form label, .form input, .form select, .form textarea, .form button, .form .label{float:left;font-size:12px;}
+	.fl{float:left;}.fr{float:right;}.fn{float:none;}
+	.hide{display:none;}.invisible{visibility:hidden;}.overflow{overflow:hidden;}
+	.clear{display:block;clear:both;height:0;overflow:hidden;}
+	body{font:12px/180% Arial, Helvetica, sans-serif,"宋体";}
+	/* yellow_button */
+	.yellow_button{background:url(/images/yellow_button.png);border:none;cursor:pointer;height:36px;line-height:36px; overflow:hidden; display:inline-block; text-align:center; font-size:14px; font-weight:800; color:#fff;background-position:0 0;width:139px;}
+	#registsubmit.disabled{background-position:0 -36px;cursor:default!important;}
+	.red{color:#ff0000;font-family:"宋体";font-weight:normal;}
+	/* formbox */
+	#formbox{padding:20px;margin:20px auto;}
+	#formbox h3{font-size:16px;height:32px;color:#3366cc;font-weight:800;border-bottom:solid 1px #D1D1D1;margin:0 0 20px 0;padding:0 10px;}
+	#formbox .item{padding-top:5px;height:50px;overflow:hidden;line-height:26px;}
+	#formbox .item a:link,#formbox .item a:visited{text-decoration:underline;}
+	#formbox .label{width:300px;text-align:right;font-size:14px;}
+	#formbox .span-150{width:150px;}
+	#formbox .text{width:240px;height:16px;padding:4px 3px;border:1px solid #bbb;font-size:14px;font-family:arial,"宋体";}
+	#formbox .text-1{width:100px;}
+	#formbox .blank{width:16px;height:16px;margin:2px 5px 0;}
+	#formbox .img img{height:26px;margin:0 5px;}
+	#formbox .succeed{background:url(/images/pwdstrength.gif) no-repeat -105px 0;}
+	#formbox .yellow_button{font-size:14px;font-weight:bold;color:#fff;border:none;cursor:pointer;}
+	#formbox .highlight1{border:1px solid #EFA100;outline:2px solid #FFDC97;*border:2px solid #ffcc66;*padding:3px 2px;}
+	#formbox .highlight2{border:1px solid #f00;outline:1px solid #FFC1C1;color:#f00;}
+	#formbox .pwdbg{background:#FFF8EB;}
+	#formbox .focus{color:#999;line-height:22px;*line-height:20px;width:40%;height:24px;line-height:24px;float:left;display:block}
+	#formbox .null,#formbox .error{color:red;line-height:22px;*line-height:20px;width:40%;height:24px;line-height:24px;float:left;display:block}
+	#formbox .checkbox{margin-top:6px;*margin-top:2px;}
+	#formbox #referrer{color:#999;font-size:12px;}
+	#formbox #protocol{margin:0px 5px 0 0;display:inline;}
+	#pwdstrength{color:#999;line-height:22px;padding-right:10px;}
+	#pwdstrength b{float:left;width:104px;height:13px;overflow:hidden;margin-top:5px;*margin-top:3px;}
+	.strengthA b{background:url(/images/pwdstrength.gif) no-repeat 0 0;}
+	.strengthB b{background:url(/images/pwdstrength.gif) no-repeat 0 -13px;}
+	.strengthC b{background:url(/images/pwdstrength.gif) no-repeat 0 -26px;}
+	.dslabel{width:20%;height:24px;line-height:24px;float:left;background:#000;display:block}
+</style>
+
+	<script type="text/javascript" src="/js/Address.js"></script>	
+	<script type="text/javascript">
+	    var currRow = "1";
+ 	    //对电子邮件的验证
+	    var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+	    //function $(idx) { return document.getElementById(idx); }
+	    function insertRow(obj) {
+	        var row = obj.insertRow(-1);
+	        row.id = "row" + currRow;
+	        var cell1 = row.insertCell(-1);
+	        var cell2 = row.insertCell(-1);
+	        var cell3 = row.insertCell(-1);
+	        var cell4 = row.insertCell(-1);
+	        var cell5 = row.insertCell(-1);
+	        var cell6 = row.insertCell(-1);
+	        var cell7 = row.insertCell(-1);
+	        cell1.innerHTML = " <input maxlength='15' type='text'>";
+	        cell2.innerHTML = " <select style='width:60px;'><option value='1'>男</option><option value='0'>女</option></select>";
+	        cell3.innerHTML = " <input maxlength='10' type='text'>";
+	        cell4.innerHTML = " <input maxlength='10' type='text'>";
+	        cell5.innerHTML = " <input maxlength='30' type='text'>";
+	        cell6.innerHTML = " <input maxlength='30' type='text'>";
+	        cell7.innerHTML = " <input maxlength='80' type='text'>";
+
+	        chnBgcolor(obj, currRow, "ffffff");
+	    }
+
+	    function chnBgcolor(obj, index, color) {
+	        for (var i = 0; i < obj.rows.length; i++) {
+	            if (i == index) {
+	                obj.rows[i].bgColor = color;
+	            }
+	            else {
+	                obj.rows[i].bgColor = "ffffff";
+	            }
+	        }
+	    }
+	    function del(num) {
+	        var row = $("row" + num);
+	        var tab = $("tb");
+	        tab.deleteRow(row.rowIndex);
+
+	    }
+		function overReq(){
+			if(document._form.isStay.value == '1'){
+				document._form.roomNum.focus();
+			}else if(document._form.isStay.value == '0'){
+				document._form.invoiceAddr.focus();
+			}
+		}
+	    function isNumber(name)  //数值检测
+	    {
+	        if (name.length == 0) return false;
+	        for (i = 0; i < name.length; i++) {
+	            if (name.charAt(i) < "0" || name.charAt(i) > "9")
+	                return false;
+	        }
+	        return true;
+	    }
+
+	    function SubForm(obj) {
+	        var x = window.confirm('您确认要提交报名信息吗?');
+
+	        if (!x)
+	            return false;
+	        //表单值验证
+	        if (document._form.unit.value.length == 0) {
+	            $('unit_prompt').innerHTML = "<span style='color:red;'>请输入单位名称.</span>";
+	            document._form.unit.focus();
+	            return false;
+	        }
+	        if (document._form.unitAddress.value.length == 0) {
+	            $('unitAddress_prompt').innerHTML = "<span style='color:red;'>请输入单位地址.</span>";
+	            document._form.unitAddress.focus();
+	            return false;
+	        }
+	        if(document._form.isStay.value == ''){
+		        alert('请选择是否安排住宿!');
+				return false;
+		    }		
+	        if(document._form.invoiceAddr.value.length == 0){
+				$('invoiceAddr_prompt').innerHTML = "<span style='color:red;'>请输入发票填写的单位名称.</span>";
+				document._form.invoiceAddr.focus();
+				return false;
+		    }
+
+	        //  if(document._form.post_code.value.length == 0 || !isNumber(document._form.post_code.value)){
+	        //	$('post_code_prompt').innerHTML="<span style='color:red;'>请输入邮编.</span>";
+	        //	document._form.post_code.focus();
+	        //	return false;
+	        //}
+
+
+	        var strs = '';
+	        for (var i = 1; i < obj.rows.length; i++) {
+	            var str = '';
+	            if (obj.rows[1].getElementsByTagName('input')[0].value == '') {
+	                alert('请填写报名人员信息!');
+	                return false;
+	            }
+	            if (obj.rows[1].getElementsByTagName('input')[4].value == '' ){
+		            alert('请填写手机号码,方便会务组人员与您联系!');
+		            return false;
+	            }
+	            if(obj.rows[1].getElementsByTagName('input')[5].value == '' || !myreg.test(obj.rows[1].getElementsByTagName('input')[5].value)){
+		            alert('请输入您的有效邮箱!');
+		            return false;
+	            }
+	            var inputs = obj.rows[i].getElementsByTagName('input');
+
+	            var sec = obj.rows[i].getElementsByTagName('select')
+	            for (var j = 0; j < inputs.length; j++) {
+	                if (inputs[0].value == null || inputs[0].value == '') break;
+	                if (j == inputs.length - 1) {
+	                    str += inputs[j].value + ',' + sec[0].value + '|';
+	                } else {
+	                    str += inputs[j].value + ',';
+	                }
+	            }
+	            strs += str;
+	        }
+	        $('columnList').value = strs;
+	        return true;
+	    }	
+		
+
+		
+	</script>
+  </head>  
+  <body>
+   	 <div class="Content">
+   	 	<div class="Right">
+        	<div class="Devicon Midbox">网上报名</div>
+        	<br>
+        	<div style="background:#fff8d8;border:1px solid #ffefc8;color:#333;padding:5px 10px;font-size: 12px;">
+				<strong>报名申请单填写须知：</strong>
+				<br>
+				<ul class="notice">
+                   <li><B>本表单提交成功后,如果需要修改报名信息,可致电刘老师:15011250775,阮老师:15120095299,董老师:15210847953，由会务组统一修改。</B></li>
+                   <li>在线报名失败,不要着急。可致电刘老师:15011250775,阮老师:15120095299,董老师:15210847953,会务组帮您报名</li>
+                   <li>请慎重填写,(*)号为必填项。</li>
+                </ul>	
+			</div>
+        	<div class="Solution" style="padding: 10px 40px;">
+<div id="formbox">
+        	<form name="_form" id="_form" method="post" onsubmit="return false;" action="/servlet/FormExcutor">
+        		 <input type="hidden" name="category_id" value="1">	
+        		 <input type="hidden" name="token" value="<%=s %>">	
+        		 <input id="columnList" type="hidden" name="columnList" value="">
+        		 <table class="dwmc">
+        		   <tr>
+        		     <td width="13%">单位名称:</td>
+        		     <td>
+						<input name="unit" maxlength="50" id="unit" type="text" size="40" tabindex="1" style="vertical-align: middle;color: #555555;width:50%;float:left;margin-left:5px;"/>
+						<label id="companyname_succeed" class="blank"></label>
+						<label id="companyname_error"></label>
+					 </td>
+        		   	 <td width="13%">邮编:</td>
+        		     <td width="37%">
+						<input name="postcode" id="postcode" maxlength="10" class="input_box" tabindex="2" type="text" style="width:25%;float:left;margin-left:5px;"/>
+						<label id="postcode_succeed" class="blank"></label>
+						<label id="postcode_error"></label>
+					</td>
+        		   </tr>
+        		   <tr>
+        		     <td width="13%">所在地:</td>
+        		     <td>  
+        		     <div style="float:left;margin-left:5px;">
+        		     	<select id="deliverprovince" name="deliverprovince" tabindex="3"></select>
+					 	<select id="delivercity" name="delivercity"></select>
+						<select id="deliverarea" name="deliverarea"></select>
+						<script src="/js/Address.js"></script>
+						<script>
+							window.onload=function(){new PCAS("deliverprovince","delivercity","deliverarea", "北京市","市辖区","海淀区");}
+						</script>
+					</div>	
+						</td><td width="13%">单位地址:</td><td>			
+							<input class="input_box" maxlength="50" name="unitAddress" id="unitAddress" tabindex="4" type="text" size="40" style="vertical-align: middle;color: #555555;width:50%;margin-left:5px;"/>
+							<label id="unitAddress_succeed" class="blank"></label>
+							<label id="unitAddress_error"></label>	
+        		   		</td>
+        		   </tr>
+        		   <tr>
+        		     <td>是否需安排住宿:</td>
+        		     <td style="text-align:left">
+        		     	<select name="isStay" id="isStay" tabindex="5" onchange="overReq()" style="width:70px;float:left;"><option value="-1">请选择</option><option value="1">是</option><option value="0">否</option></select><span style="color:red;">&nbsp;*</span>
+							<label id="isStay_succeed" class="blank"></label>
+							<label id="isStay_error"></label>
+        		     	<!-- <input type="radio" checked="checked" value="1" id="isStay" name="isStay" style="width:3%"><span class="spa">是</span> <input type="radio" value="0" name="isStay"  style="width:3%"><span class="spa">否</span> -->
+        		     </td>
+        		      <td>住宿要求: </td>
+        		     <td style="text-align:left"><input type="text" maxlength="2" name="roomNum" style="width:10%;margin-left:5px">标间<span style="color:green">(如果不安排住宿，此项无需填写/请输入阿拉伯数字)</span></td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td>是否同意调剂（与他人合住）</td>
+        		     <td colspan="3" style="text-align:left"><input type="radio" value="1" name="isTogether" style="width:2%"><span class="spa">是</span><input type="radio" checked="checked" value="0" name="isTogether" style="width:2%"><span class="spa">否</span> <span style="color:green">(如果不安排住宿，此项无需填写)</span></td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td width="13%">发票上准确的单位名称：</td>
+        		     <td style="text-align:left" width="37%"><input name="invoiceAddr" id="invoiceAddr" maxlength="100" type="text" size="40" style="vertical-align: middle;color: #555555;width:50%;margin-left:5px"></td>
+        		     <td width="13%">报名人联系方式(手机号码):</td>
+        		     <td style="text-align:left" width="37%"><input name="contactWay" id="contactWay" maxlength="20" type="text" style="width:25%;float:left;margin-left:5px;"/>
+							<label id="contactWay_succeed" class="blank"></label>
+							<label id="contactWay_error"></label>
+					 </td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td>发票开票备注:</td>
+        		     <td style="text-align:left" colspan="3"><textarea id="referrer" name="invoiceRemark" style="width:30%;margin-left:5px"></textarea></td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td>您通过何种方式知悉活动</td>
+        		     <td style="text-align:left" colspan="3"><input type="checkbox" name="tree_id" id="tree_id1" value="1" style="width:3%;float:left" /><span class="spa"><label for="tree_id1">人民教育</label></span><input type="checkbox" name="tree_id" id="t2" value="2"  style="width:3%;float:left"/><span class="spa"><label for="t2">中国教育新闻网</label></span><input type="checkbox" name="tree_id" id="t3" value="3" style="width:3%;float:left" /><span class="spa"><label for="t3">中国教育在线</label></span><input type="checkbox" name="tree_id" id="t4" value="4" style="width:3%;float:left" /><span class="spa"><label for="t4">中国教育报</label></span><input type="checkbox" name="tree_id" id="t5" value="5" style="width:3%;float:left" /><span class="spa"><label for="t5">信函</label></span><input type="checkbox" name="tree_id" id="t6" value="6" style="width:3%;float:left" /><span class="spa"><label for="t6">其他</label></span></td>
+        		   </tr>
+        		 </table>
+        		 <table id="tabModel" style="font-size: 13px;border-spacing: 1px;border-collapse:inherit;margin-top:20px;" width="100%" align="center" cellspacing="1" cellpadding="2" border="0" bgcolor="#cccccc">       		      	        		
+        		 <tr bgcolor="#FFFFFF" align="center" style="font-weight: bold;height: 50px;">
+        		 	<td width="">姓名(<span style="color:red">*</span>)</td>
+        		 	<td>性别</td>
+        		 	<td width="">民族</td>
+        		 	<td width="">职务</td>
+        		 	<td width="">办公电话</td>
+        		 	<td width="">手机(<span style="color:red">*</span>)</td>
+        		 	<td width="">邮箱(<span style="color:red">*</span>)</td>
+        		 	
+        		 </tr>   
+        		 <tr id="row0" bgcolor="#FFFFFF">
+        		    <td><input name="name" maxlength="5" type="text"></td>
+        		    <td><select style="width:60px;"><option value="1">男</option><option value="0">女</option></select></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='80' type="text"></td>
+        		 </tr>
+        		 <tr id="row0" bgcolor="#FFFFFF">
+        		    <td><input name="name" maxlength="4" type="text"></td>
+        		    <td><select style="width:60px;"><option value="1">男</option><option value="0">女</option></select></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='80' type="text"></td>
+        		 </tr>
+        		 <tr id="row0" bgcolor="#FFFFFF">
+        		    <td><input name="name" maxlength="4" type="text"></td>
+        		    <td><select style="width:60px;"><option value="1">男</option><option value="0">女</option></select></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='80' type="text"></td>
+        		 </tr>
+        		 <tr id="row0" bgcolor="#FFFFFF">
+        		    <td><input name="name" maxlength="4" type="text"></td>
+        		    <td><select style="width:60px;"><option value="1">男</option><option value="0">女</option></select></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='80' type="text"></td>
+        		 </tr>
+        		 <tr id="row0" bgcolor="#FFFFFF">
+        		    <td><input name="name" maxlength="4" type="text"></td>
+        		    <td><select style="width:60px;"><option value="1">男</option><option value="0">女</option></select></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='15' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='30' type="text"></td>
+        		    <td><input maxlength='80' type="text"></td>
+        		 </tr>
+        		</table>
+			<div style="float:left;width:100%;margin-top:20px">
+			  <input id="ok" type="button" class="Gray_btn" onclick="insertRow(document.all.tabModel);" value="添加成员" style="float:left">
+			</div>
+			
+            <div style="float:left;width:100%;margin-top:20px;padding-left:50%;height:40px">
+							<div class="item">
+								<span class="label">&nbsp;</span>
+								<input type="button" class="yellow_button disabled" id="registsubmit" value="提交报名信息" tabindex="8" disabled="disabled" />
+							</div>
+			</div>
+        	</form>
+			<div style="clear:both">
+			</div>
+			</div>
+			<div class="clear"></div>
+        	</div>
+        </div>	
+   	 </div>
+	 <script type="text/javascript" src="/js/Validate.js"></script>
+	<script type="text/javascript" src="/js/Validate.form.js"></script>
+		<script type="text/javascript">
+			var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+			document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F8726ccdc3b3f1133285b2b37ed57a28b' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+
+  </body>
+</html>

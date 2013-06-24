@@ -1,0 +1,26 @@
+﻿Global = new Object();
+Global.__UniqueID = 0;
+Global.GetUniqueID = function(){ return "__MT_UID_" + Global.__UniqueID ++;};
+function GetE(id){ return document.getElementById(id);};
+function avoid(){ return false;};
+function byteLength (sStr){aMatch = sStr.match(/[^\x00-\x80]/g);return (sStr.length + (! aMatch ? 0 : aMatch.length));};
+String.prototype.cut=function(n){var strTmp = "";for(var i=0,l=this.length,k=0;(i<n);k++){var ch = this.charAt(k);if(ch.match(/[\x00-\x80]/)){i+=1;}else{i+=2;};strTmp += ch;}return strTmp;};
+String.prototype.getChar=function(){ var text = this.match(/(\w)|([\u4e00-\u9fa5])/gi);if(null==text)return text;return text.join("");};
+String.prototype.repeat = function(n){var text = '';for(var i=0;i<n;i++) text += this;return text;};
+String.prototype.escapeHtml = function(){return this.replace(/\&/g,"&amp;").replace(/</gi,"&lt;").replace(/>/g,"&gt;").replace(/ /g,"&nbsp;").replace(/\n|\r/g,"<br/>");};
+String.prototype.trim = function(){return this.replace(/^(\s*)|(\s*)$/g,"");};
+function rgb2Hex(color){color = new String(color).match(/rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/i);if(null == color) return null;return "#" + parseInt(RegExp.$1,10).toString(16) + parseInt(RegExp.$2,10).toString(16) + parseInt(RegExp.$3,10).toString(16);};
+function CompValue(v1,v2){if(v1 > v2) return 1;if(v1 == v2) return 0;if(v1 < v2) return -1;};
+function ReverseColor(_color){_color = parseInt(_color.substring(1),16);return "#" + (_color ^ 0xffffff).toString(16);};
+function GetAbsPos(id){var _left = 0,_top = 0;var obj = document.getElementById(id);if(null == obj) return null;while(obj){_left += obj.offsetLeft;_top += obj.offsetTop;obj = obj.offsetParent;}return {Top : _top,Left : _left,toString : function(){ return "Top: " + this.Top + ",Left: " + this.Left;}};};
+function GetParam(param,name){return String(param).match(new RegExp("\W*" + name + "=([^&]+)","gi")),RegExp.$1;};
+function FlObj(obj,str){var tmp;str = String(str).split(",");for(var i=0,l=str.length;i<l;i++){tmp = str[i].split(":");if(tmp[0].replace(/\s/g,"") != "")obj[tmp[0]] = unescape(tmp[1]);};};
+Object.prototype.toString = function(){var j,text = '';for(j in this){text += j + "=" + this[j] + "\n";}return text;};
+Date.prototype.toLocaleString = function(){var text = this.getFullYear() + "-";text += (this.getMonth() + 1) + "-";text += this.getDay() + " ";text += this.getHours() + ":";text += this.getMinutes() + ":";text += this.getSeconds();return text;};
+
+var XMLCompoents = ["Msxml2.XMLHTTP","Msxml2.XMLHTTP.4.0","Microsoft.XMLHTTP"];
+function CreateAjax(){var obj = null;if(window.ActiveXObject){for(var i=XMLCompoents.length;i>0;){obj = new ActiveXObject(XMLCompoents[--i]);if(obj) break;}}if(window.XMLHttpRequest) obj = new XMLHttpRequest();if(null == obj) throw new Error(123456,"cannot create XMLHTTP.");return obj;};
+function LoadScript(src,id){if(GetE(id)) return;var h = document.getElementsByTagName("HEAD");if(h&&h.length) h = h[0];else h = document.body;var c = document.createElement("SCRIPT");c.src = src;c.id = id;c.language = "JavaScript";c.type = "text/javascript";h.appendChild(c);};
+function RemoveElement(id){var obj = GetE(id);if(obj) obj.parentNode.removeChild(obj);};
+function LoadCSS(src,id){if(GetE(id)) return;var h = document.getElementsByTagName("HEAD");if(h&&h.length) h = h[0];else h = document.body;var c = document.createElement("LINK");c.href = src;c.rel = "stylesheet";c.type = "text/css";h.appendChild(c);};
+function Escape(text){return escape(escape(text));};

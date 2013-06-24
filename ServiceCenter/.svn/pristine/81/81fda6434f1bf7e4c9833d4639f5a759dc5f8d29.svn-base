@@ -1,0 +1,84 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@page import="com.huayue.framework.util.Utils"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%
+	String result = (String)request.getAttribute("result");
+	if(!"OK".equals(result)){
+		out.println(Utils.getTipHtml("提示信息","Caused By :" + result,null));
+		return;
+	}
+ %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>   
+    <title>考勤结果统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />	
+	<link rel="stylesheet" type="text/css" href="/css/style.css"> 
+
+  </head>
+  
+  <body>
+    <div class="box-positon">
+		<div class="rpos">当前位置: 考勤统计 </div>
+		<div class="clear"></div>
+	</div>
+	<br><br>
+	<table width="95%" border="0" align="center" cellpadding="3" cellspacing="1" bgcolor="#555555">
+        <tr background="../images/bg.gif">
+            <td height="26" colspan="8">
+            	<c:set value="${userId}" var="userId"></c:set>
+                &nbsp;&nbsp;<strong style="color: #98CAEF">员工 ----考勤统计信息</strong>
+            </td>                         
+        </tr>     
+        <tr>
+            <td bgcolor="#FFFFFF" id="_chl_0" colspan="2">
+				<table width="100%" border="0" cellpadding="3" cellspacing="1" bgcolor="#CCCCCC">
+				    <tr bgcolor="#FFFFFF" style="font-weight: bold" background="../images/search.gif">
+				    	<td align="center">员工ID</td>
+				    	<td align="center">员工姓名</td>
+				    	<td align="center">所属部门名称</td>
+				    	<td align="center">上班打卡时间</td>
+				    	<td align="center">下班打卡时间</td>
+				    	<td align="center">日期</td>
+				    	<td align="center">星期</td>
+				    	<td align="center">签到时间</td>
+				    	<td align="center">签退时间</td> 
+				    	<td align="center">迟到分钟数</td>
+				    	<td align="center">早退分钟数</td>
+				    	<td align="center">例外情况</td>
+				    	<td align="center">是否旷工</td>
+				    	<td align="center">操作选项</td>
+					</tr>
+					<c:forEach items="${AttendMap}" var="map">
+					<c:set var="attend" value="${map.value}"></c:set>
+					<tr bgcolor="#FFFFFF" onMouseOver="style.backgroundColor='#fff8d8'" onMouseOut="style.backgroundColor='#ffffff';">
+						<td align="center">${attend.userId }</td>
+						<td align="center">${userMap[attend.userId]} </td>
+						<td align="center">${attend.deptName } </td>
+						<td align="center">${attend.comeTime }</td>
+						<td align="center">${attend.leaveTime }</td>
+						<td align="center">${map.key }</td>
+						<td align="center">${attend.dayForWeek }</td>
+						<td align="center" <c:if test="${attend.checkInTime == null }" >style='background:#E2EDFB'</c:if> >${attend.checkInTime }</td>
+						<td align="center" <c:if test="${attend.checkOutTime == null }" >style='background:#EFEFEF'</c:if> >${attend.checkOutTime }</td>
+						<td align="center">
+							<c:choose><c:when test="${attend.lateTime == 0 }">-</c:when><c:otherwise>${attend.lateTime}</c:otherwise> </c:choose></td>
+						<td align="center"><c:choose>
+							<c:when test="${attend.earlyTime == 0 }">-</c:when><c:otherwise>${attend.earlyTime}</c:otherwise></c:choose></td>
+						<td align="center">
+							<c:choose><c:when test="${attend.leaveCondition == 1}"><span style="color:green;">请假/公出</span></c:when><c:otherwise>-</c:otherwise></c:choose>
+						</td>
+						<td align="center">
+							<c:choose><c:when test="${attend.isNeglectWork == 1}"><div style="color:red;">旷工</div></c:when><c:otherwise>-</c:otherwise></c:choose> 
+						</td>
+						<td align="center"><a href="${pageContext.request.contextPath }/view/add_attend.jsp?userId=${attend.userId}&userName=${userMap[attend.userId]}&date=${map.key}" target="_blank">漏打卡补充 </a>&nbsp;&nbsp;|&nbsp;&nbsp; <a href="/view/extraleave.jsp" target="_blank">请假/公出补充</a></td>
+					</tr>
+					</c:forEach>
+			</table>
+			</td>
+		</tr>
+	</table>
+	<div style="float:right;margin-top:10px;margin-right:50px;"><input type="button" value="返回上一层" class="sblue_btn" onclick="javascript:history.back(-1);" /></div>
+	<br/><br/>		    		
+  </body>
+</html>

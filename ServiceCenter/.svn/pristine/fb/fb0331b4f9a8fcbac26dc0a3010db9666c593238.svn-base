@@ -1,0 +1,376 @@
+package com.huayue.attend.dao.impl;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import com.huayue.attend.dao.UserSpedayDao;
+import com.huayue.attend.entity.CheckExact;
+import com.huayue.attend.entity.OverTimeInfo;
+import com.huayue.attend.entity.UserSpeday;
+import com.huayue.attend.util.AttendUtil;
+import com.huayue.framework.util.Format;
+
+@Repository
+public class UserSpedayDaoImpl implements UserSpedayDao{
+	
+	private static Logger log = Logger.getLogger(UserSpedayDaoImpl.class);
+	
+	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	@Resource(name="dataSource1")
+	public void setDatasource(DataSource dataSource){
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+	
+	@Transactional
+	public void add(final UserSpeday speday) {
+		// TODO Auto-generated method stub
+		String sql = "INSERT INTO USER_SPEDAY_TEMP (USERID ,STARTTIME ,ENDTIME ,DATAID ,REASON ,DATE) VALUES (?,?,?,?,?,?)";
+		jdbcTemplate.update(sql, new PreparedStatementSetter(){
+			public void setValues(PreparedStatement rs) throws SQLException {
+				// TODO Auto-generated method stub
+				rs.setInt(1, speday.getUserId());
+				rs.setString(2, speday.getStartTime());
+				rs.setString(3, speday.getEndTime());
+				rs.setInt(4, speday.getDataId());
+				rs.setString(5, speday.getReason());
+				rs.setString(6, new java.util.Date().toLocaleString());
+			}
+		}				
+		);
+	}
+	
+	@Transactional 
+	public void addOverTimeApply(final UserSpeday speday){
+		String sql = "INSERT INTO USER_SPEDAY_TEMP (USERID,STARTTIME ,ENDTIME ,DATAID,REASON,DATE,TOTALTIME)VALUES (?,?,?,?,?,?,?)";
+		jdbcTemplate.update(sql, new PreparedStatementSetter(){
+			public void setValues(PreparedStatement rs) throws SQLException {				
+				rs.setInt(1, speday.getUserId());
+				rs.setString(2, speday.getStartTime());
+				rs.setString(3, speday.getEndTime());
+				rs.setInt(4, 1005);
+				rs.setString(5, speday.getReason());
+				rs.setString(6, new java.util.Date().toLocaleString());
+				rs.setDouble(7, speday.getTotalTime());
+			}
+		}				
+		);
+	}
+
+	public void verifyForm(UserSpeday speday) {
+		// TODO Auto-generated method stub		
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserSpeday> listExtraApply(int flag,int deptId,String sTime,String eTime) {
+		// TODO Auto-generated method stub
+		List<UserSpeday> list = null;
+		String sql = "SELECT TID ,USERID,STARTTIME ,ENDTIME,DATAID,REASON,DATE,STATUS,CHECKID FROM USER_SPEDAY_TEMP WHERE TID > 0";
+		
+		if(flag >= 0) sql += " AND STATUS = " + flag;
+		if(!"".equals(sTime) && !"".equals(eTime)) sql += " AND DATE > '" + sTime + "' AND DATE < '" + eTime + "'";
+		if(deptId != 0) sql += " AND USERID IN (SELECT USERID FROM USERINFO WHERE DEFAULTDEPTID IN (SELECT DISTINCT DEPTID FROM DEPARTMENTS WHERE SUPDEPTID = " + deptId + "))";
+		
+		sql += " ORDER BY DATE DESC";
+		list = jdbcTemplate.query(sql,new RowMapper(){
+
+			public Object mapRow(ResultSet rst, int i) throws SQLException {
+				// TODO Auto-generated method stub
+				UserSpeday us = new UserSpeday();
+				us.setId(rst.getInt("TID"));
+				us.setUserId(rst.getInt("USERID"));
+				us.setStartTime(rst.getString("STARTTIME"));
+				us.setEndTime(rst.getString("ENDTIME"));
+				us.setDataId(rst.getInt("DATAID"));
+				us.setReason(rst.getString("REASON"));
+				us.setStatus(rst.getInt("STATUS"));
+				us.setDate(rst.getString("DATE"));
+				us.setCheckerId(rst.getInt("CHECKID"));
+				return us;
+			}
+			
+		});
+		return list;
+	}
+	
+	@Transactional
+	public void vefifyAttendData(final CheckExact cet) {
+		// TODO Auto-generated method stub
+		String sql = "INSERT INTO CHECKEXACT_TMP (USERID, CHECKTIME, ISADD, REASON, MODIFYBY, DATE) VALUES (?,?,?,?,?,?)";
+		jdbcTemplate.update(sql, new PreparedStatementSetter(){
+
+			public void setValues(PreparedStatement rs) throws SQLException {
+				// TODO Auto-generated method stub
+				rs.setInt(1, cet.getUserId());
+				rs.setString(2, cet.getCheckTime());
+				rs.setInt(3, cet.getIsAdd());
+				rs.setString(4, cet.getReason());
+				rs.setString(5, cet.getModifyBy());
+				rs.setString(6,new java.util.Date().toLocaleString());
+			}
+
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CheckExact> listModifyDatas(int deptId, String sTime, String eTime,int status) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM CHECKEXACT_TMP WHERE ISADD = 1";
+		if(!"".equals(sTime) && !"".equals(eTime)) sql += " AND DATE > '" + sTime + "' AND DATE < '" + eTime + "'";
+		if(deptId != 0) sql += " AND USERID IN (SELECT USERID FROM USERINFO WHERE DEFAULTDEPTID IN (SELECT DISTINCT DEPTID FROM DEPARTMENTS WHERE SUPDEPTID = " + deptId + "))";	
+		if(status != -1) sql +=" AND STATUS = " + status;
+		sql += " ORDER BY DATE DESC";
+		List<CheckExact> list = null;
+		
+		System.out.println("sql : " + sql);
+		
+		list = jdbcTemplate.query(sql, new RowMapper(){
+
+			public Object mapRow(ResultSet rst, int i) throws SQLException {
+				// TODO Auto-generated method stub
+				CheckExact cet = new CheckExact();
+				cet.setUserId(rst.getInt("USERID"));
+				cet.setExactId(rst.getInt("ID"));
+				cet.setDate(rst.getString("DATE"));
+				cet.setIsAdd(rst.getInt("ISADD"));
+				cet.setCheckTime(rst.getString("CHECKTIME"));
+				cet.setModifyBy(rst.getString("MODIFYBY"));
+				cet.setStatus(rst.getInt("STATUS"));
+				cet.setCheckId(rst.getInt("CHECKID"));
+				cet.setReason(rst.getString("REASON"));
+				return cet;
+			}
+			
+		});
+		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void checkForLeave(int id,int checkId) throws Exception{
+		// TODO Auto-generated method stub
+		jdbcTemplate.update("UPDATE USER_SPEDAY_TEMP SET CHECKID = ? , STATUS = ? WHERE TID = ?",new Object[]{checkId, 1, id});
+		
+		String sql = "SELECT TID ,USERID,STARTTIME,ENDTIME,DATAID,REASON,DATE FROM USER_SPEDAY_TEMP WHERE TID = ?";
+		
+		final UserSpeday userSpeday = jdbcTemplate.queryForObject(sql, new Object[]{id}, new RowMapper(){
+
+			public Object mapRow(ResultSet rst, int i) throws SQLException {
+				// TODO Auto-generated method stub
+				UserSpeday userSpeday = new UserSpeday();
+				
+				userSpeday.setUserId(rst.getInt("USERID"));
+				userSpeday.setStartTime(rst.getString("STARTTIME"));
+				userSpeday.setEndTime(rst.getString("ENDTIME"));
+				userSpeday.setReason(rst.getString("REASON"));
+				userSpeday.setDataId(rst.getInt("DATAID"));
+				userSpeday.setDate(rst.getString("DATE"));
+				
+				return userSpeday;
+			}
+			
+		});
+		String sDate = userSpeday.getStartTime().split(" ")[0];
+		String eDate = userSpeday.getEndTime().split(" ")[0];
+		
+		sql = "INSERT INTO USER_SPEDAY (USERID,STARTSPECDAY,ENDSPECDAY,DATEID,YUANYING,DATE) VALUES (?,?,?,?,?,?)";
+		
+		if(sDate.equals(eDate)){
+				
+			jdbcTemplate.update(sql, new PreparedStatementSetter(){
+	
+				public void setValues(PreparedStatement ps) throws SQLException {
+					// TODO Auto-generated method stub
+					ps.setInt(1, userSpeday.getUserId());
+					ps.setString(2, userSpeday.getStartTime());
+					ps.setString(3, userSpeday.getEndTime());
+					ps.setInt(4, userSpeday.getDataId());
+					ps.setString(5, userSpeday.getReason());
+					ps.setString(6, userSpeday.getDate());
+					
+				}
+				
+			});
+			
+		}else{
+			final ArrayList<String> dateList = AttendUtil.excuteAttendLeave(sDate, eDate);
+			jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter(){
+
+				public int getBatchSize() {
+					// TODO Auto-generated method stub
+					return dateList.size();
+				}
+
+				public void setValues(PreparedStatement ps, int i) throws SQLException {
+					// TODO Auto-generated method stub
+					if(i == 0){
+						ps.setInt(1, userSpeday.getUserId());
+						ps.setString(2, userSpeday.getStartTime());
+						ps.setString(3, dateList.get(i)+ " 23:59:00");
+						ps.setInt(4, userSpeday.getDataId());
+						ps.setString(5, userSpeday.getReason());
+						ps.setString(6, userSpeday.getDate());
+					}else if(i == dateList.size() - 1){
+						ps.setInt(1, userSpeday.getUserId());
+						ps.setString(2, dateList.get(i) + " 00:00:00");
+						ps.setString(3, userSpeday.getEndTime());
+						ps.setInt(4, userSpeday.getDataId());
+						ps.setString(5, userSpeday.getReason());
+						ps.setString(6, userSpeday.getDate());
+					}else{
+						ps.setInt(1, userSpeday.getUserId());
+						ps.setString(2, dateList.get(i) + " 00:00:00");
+						ps.setString(3, dateList.get(i) + " 23:59:00");
+						ps.setInt(4, userSpeday.getDataId());
+						ps.setString(5, userSpeday.getReason());
+						ps.setString(6, userSpeday.getDate());
+					}
+				}				
+			});
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void checkForExact(int id, int checkId) {
+		// TODO Auto-generated method stub
+		jdbcTemplate.update("UPDATE CHECKEXACT_TMP SET CHECKID = ? , STATUS = ? WHERE ID = ?", new Object[]{checkId ,1 ,id});
+		
+		String sql = "SELECT * FROM CHECKEXACT_TMP WHERE ID = ?";
+		
+		final CheckExact cet = jdbcTemplate.queryForObject(sql,new Object[]{id}, new RowMapper(){
+
+			public Object mapRow(ResultSet rst, int i) throws SQLException {
+				// TODO Auto-generated method stub
+				CheckExact cet = new CheckExact();
+				cet.setCheckTime(rst.getString("CHECKTIME"));
+				cet.setUserId(rst.getInt("USERID"));
+				cet.setDate(rst.getString("DATE"));
+				cet.setIsAdd(rst.getInt("ISADD"));
+				cet.setModifyBy(rst.getString("MODIFYBY"));
+				cet.setReason(rst.getString("REASON"));
+				
+				return cet;
+			}
+			
+		});
+		sql = "INSERT INTO CHECKEXACT (USERID, CHECKTIME, ISADD, YUYIN, MODIFYBY, DATE)VALUES(?, ?, ?, ?, ?, ?)";
+		jdbcTemplate.update(sql, new PreparedStatementSetter(){
+
+			public void setValues(PreparedStatement ps) throws SQLException {
+				// TODO Auto-generated method stub
+				ps.setInt(1, cet.getUserId());
+				ps.setString(2, cet.getCheckTime());
+				ps.setInt(3, cet.getIsAdd());
+				ps.setString(4, cet.getReason());
+				ps.setString(5, cet.getModifyBy());
+				ps.setString(6, cet.getDate());
+			}
+			
+		});
+		
+		jdbcTemplate.update("INSERT INTO CHECKINOUT (USERID,CHECKTIME) VALUES (?,?)", new Object[]{cet.getUserId(),cet.getCheckTime()});
+	}
+
+	public void delLeaveReq(int id)throws Exception {
+		// TODO Auto-generated method stub
+		jdbcTemplate.update("DELETE FROM USER_SPEDAY_TEMP WHERE TID = ?",new Object[]{id});
+	}
+
+	public void delExactReq(int id) throws Exception {
+		// TODO Auto-generated method stub
+		jdbcTemplate.update("DELETE FROM CHECKEXACT_TMP WHERE ID = ?",new Object[]{id});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<OverTimeInfo> showOverTimeList(final long userId,String sTime,String endTime)throws Exception{
+		List<OverTimeInfo> list = null;
+		String sql = "SELECT TID, STARTTIME, ENDTIME, REASON, DATE, CHECKID,TOTALTIME FROM USER_SPEDAY_TEMP WHERE USERID = ? AND ( STARTTIME > ? AND ENDTIME < ? ) AND STATUS = 1 AND DATAID IN (1010,1005,1006)";
+		
+		final DateFormat format = new SimpleDateFormat("HH:mm:ss");
+		
+		list = jdbcTemplate.query(sql, new Object[]{userId,sTime,endTime}, new RowMapper(){
+
+			public Object mapRow(ResultSet rst, int i) throws SQLException {
+				// TODO Auto-generated method stub
+				OverTimeInfo ot = new OverTimeInfo();
+				Calendar c1 = Calendar.getInstance();
+				Calendar c2 = Calendar.getInstance();
+				
+				ot.setId(rst.getInt("TID"));
+				ot.setStartTime(rst.getString("STARTTIME"));
+				ot.setEndTime(rst.getString("ENDTIME"));
+				ot.setTotalTime(rst.getDouble("TOTALTIME")*60);
+				ot.setUserId((int)userId);
+				try {
+					c1.setTime(format.parse(ot.getStartTime().substring(11,19)));
+					c2.setTime(format.parse(ot.getEndTime().substring(11,19)));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					log.error(e);
+				}
+				ot.setOverTime( (c2.getTimeInMillis() - c1.getTimeInMillis()) / (1000 * 60) );
+				//System.out.println("--------" + (c2.getTimeInMillis() - c1.getTimeInMillis()) / (1000 * 60) );
+				ot.setReason(rst.getString("REASON"));
+				ot.setApplyTime(rst.getString("DATE"));
+				ot.setCheckId(rst.getInt("CHECKID"));
+				
+				return ot;
+			}
+			
+		});
+		return list;
+	}
+	
+	public TreeMap<Integer,Long> showTotalOverTimeList(String sTime,String eTime)throws Exception{	
+		
+		String sql = "SELECT USERID, STARTTIME, ENDTIME FROM USER_SPEDAY_TEMP WHERE STARTTIME > ? AND ENDTIME < ? AND STATUS = 1 AND DATAID IN (1010,1005,1006)";
+		List list = jdbcTemplate.queryForList(sql, new Object[]{sTime,eTime});
+		DateFormat format = new SimpleDateFormat("HH:mm:ss");
+		Calendar c1 = Calendar.getInstance();
+		Calendar c2 = Calendar.getInstance();
+		
+		TreeMap<Integer,Long> total = new TreeMap<Integer,Long>();
+		
+		for(int i = 0 ,j = list.size(); i < j ; i++ ){
+			Map map = (Map)list.get(i);
+			int id = (Integer)map.get("USERID");
+			if(!total.containsKey(id)) total.put(id, 0L);
+			
+			String s = map.get("STARTTIME").toString();
+			String e = (String)map.get("ENDTIME").toString();
+			c1.setTime(format.parse(s.substring(11, 19)));
+			c2.setTime(format.parse(e.substring(11, 19)));
+			
+			long temp = total.get(id) + (c2.getTimeInMillis() - c1.getTimeInMillis()) / (1000 * 60);
+			total.put(id, temp); 
+		}
+		
+		return total;
+	}
+
+}

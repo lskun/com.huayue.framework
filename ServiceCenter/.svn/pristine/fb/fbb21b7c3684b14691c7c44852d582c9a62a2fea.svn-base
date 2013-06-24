@@ -1,0 +1,93 @@
+package com.huayue.framework.filter;
+
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+
+import com.huayue.platform.entity.User;
+
+
+/**
+ * Servlet Filter implementation class AuthenticationFilter
+ */
+public class AuthenticationFilter implements Filter {
+	
+	private static final Logger log = Logger.getLogger(AuthenticationFilter.class);
+    /**
+     * Default constructor. 
+     */
+    public AuthenticationFilter() {
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see Filter#destroy()
+	 */
+	public void destroy() {
+		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
+	 */
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		boolean auth = false;
+        String url = null;
+        User user = null;
+        HttpServletRequest req = (HttpServletRequest)request;
+        HttpServletResponse resp = (HttpServletResponse)response;
+               
+        try
+        {
+        	url = req.getRequestURI();
+            user = (User)req.getSession().getAttribute("login_user");
+            
+            System.out.println("user : " + user);
+            
+            if (url.equals("/")) auth = true;
+            if (url.endsWith(".jsp")) auth = true;
+            if (url.startsWith("/servlet")) auth = true;
+            if (url.equals("/servlet/Login")) auth = false;
+            if (url.equals("/login.jsp")) auth = false;
+            if (url.equals("/do_login.jsp")) auth = false;
+            if (url.equals("/servlet/SmsSender")) auth = false;
+            if (url.equals("/servlet/SmsReciever")) auth = false;
+            if (url.equals("/apply/register.jsp")) auth = false;
+			if (url.equals("/apply/verify_submit.jsp")) auth = false;
+			if (url.equals("/servlet/VerificationExecuter")) auth = false;
+            if (url.equals("/sms/scroll.jsp")) auth = false;
+            if (url.equals("/servlet/FormExcutor")) auth = false;
+            if (url.equals("/servlet/FormUpdater")) auth = false;
+            if (url.equals("/servlet/RefreshExcuter")) auth = false;
+            if (url.equals("/servlet/MobileBinder")) auth = false;
+            if (url.equals("/servlet/InteractiveController")) auth = false;
+            if (url.equals("/servlet/UnselectMobiles")) auth = false;
+
+
+            if (auth && null == user)
+            {
+            	resp.sendRedirect("/login.jsp");
+            	return;
+            }          
+            chain.doFilter(req, resp);
+        }catch(Exception ex){
+        	log.error(ex);
+        	resp.sendRedirect("/404.jsp");
+        }		
+	}
+
+	/**
+	 * @see Filter#init(FilterConfig)
+	 */
+	public void init(FilterConfig fConfig) throws ServletException {
+		// TODO Auto-generated method stub
+	}
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 数据映射配置 -->
+<mapper namespace="entitiesMap">
+	<resultMap type="user" id="userMap">
+		<id property="id" column="id"/>
+		<result property="name" column="user_name"/>
+		<result property="password" column="password"/>
+		<result property="deptId" column="depid"/>
+		<result property="permission" column="permission"/>
+		<result property="createTime" column="create_time"/>
+		<result property="modifiedTime" column="modified_time"/>
+	</resultMap>
+	<resultMap type="java.util.HashMap" id="hmap">
+		<id property="id" column="id"/>
+		<result property="value" column="user_name"/>
+	</resultMap>	
+</mapper>

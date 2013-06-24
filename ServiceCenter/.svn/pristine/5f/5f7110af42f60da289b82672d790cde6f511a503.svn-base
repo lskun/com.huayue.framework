@@ -1,0 +1,8 @@
+drivers=com.mysql.jdbc.Driver
+
+idb.url=jdbc:mysql://127.0.0.1:3306/webdb
+idb.user=root
+idb.password=900120
+
+idb.maxconn=200
+idb.minconn=10

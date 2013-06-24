@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>无标题文档</title>
+    <script language="javascript" type="text/javascript" src="Tooltip.js"></script>
+    <style type="text/css">
+    *{
+        font-family:arial;
+        font-size:9pt;
+    }
+    </style>
+</head>
+<body>
+    <div id="info" style="position:absolute;top:100px;left:500px;border:solid 1px #c1c1c1;padding:2px;width:400px;">&nbsp;</div>
+    <a href="javascript:;" onmouseover="Tooltip.Show(this, 'here is the title,and there is the content,so where is footer?', '这里是标题,那里是内容,那脚注到哪去了捏?')">Show me!</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:;" onmouseover="Tooltip.Show(this, 'here is the title,and there is the content,so where is footer?', '这里是标题,那里是内容,那脚注到哪去了捏?')">Show me!</a>
+    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+    <a href="javascript:;" onmouseover="Tooltip.Show(this, 'here is the title,and there is the content,so where is footer?', '这里是标题,那里是内容,那脚注到哪去了捏?')">Show me!</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:;" onmouseover="Tooltip.Show(this, 'here is the title,and there is the content,so where is footer?', '这里是标题,那里是内容,那脚注到哪去了捏?')">Show me!</a>
+    <a href="javascript:;" style="position:absolute;top:50px;left:900px;" onmouseover="Tooltip.Show(this, 'here is the title,and there is the content,so where is footer?here is the title,and there is the content,so where is footer?here is the title,and there is the content,so where is footer?here is the title,and there is the content,so where is footer?here is the title,and there is the content,so where is footer?here is the title,and there is the content,so where is footer?', '这个是嘛?嘛是这个?这个是嘛嘛是这个嘛是嘛这个是这个~~~')">Show me!</a>
+</body>
+</html>

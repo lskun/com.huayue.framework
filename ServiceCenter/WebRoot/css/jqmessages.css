@@ -1,0 +1,80 @@
+/* CSS Document */
+
+.jqifade {
+	position: absolute;
+	background-color: #aaaaaa;
+}
+
+div.jqi {
+	width: 400px;
+/*	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; */
+	position: absolute;
+	background-color: #509ddd;
+	font-size:8px;
+	font-family:arial, "ËÎÌו";
+	line-height:150%;
+	text-align: left;
+	border: solid 1px #eeeeee;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	padding: 7px;
+	
+}
+
+div.jqi a{
+	color: #00f;
+	font-weight: bold;
+}
+
+div.jqi .jqicontainer {
+	font-weight: bold;
+}
+
+div.jqi .jqiclose {
+	display:none;
+	position: absolute;
+	top: 4px;
+	right: -2px;
+	width: 14px;
+	cursor: default;
+	color: #bbbbbb;
+	font-weight: bold;
+}
+
+div.jqi .jqimessage {
+	padding: 10px;
+	line-height: 30px;
+	background:#f4f4f4;
+	color: #444444;
+	*margin-bottom: -10px!important;
+}
+
+div.jqi .jqibuttons {
+	text-align: center;
+	padding: 5px 0 5px 0;
+	border: 0px;
+	background-color: #f4f4f4;
+}
+
+div.jqi button {
+	padding: 3px 10px;
+	margin: 0 10px;
+	background-color: #509ddd;
+	border: solid 1px #f4f4f4;
+	color: #ffffff;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+div.jqi button:hover {
+	background-color: #76b7ec;
+}
+
+div.jqi button.jqidefaultbutton {
+	background-color: #509ddd;
+}
+
+.jqiwarning .jqi .jqibuttons {
+	background-color: #509ddd;
+}

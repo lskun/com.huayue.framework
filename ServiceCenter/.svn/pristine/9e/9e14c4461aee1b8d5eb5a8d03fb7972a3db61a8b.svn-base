@@ -1,0 +1,288 @@
+package com.huayue.attend.control;
+
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+
+import com.huayue.attend.dao.UserSpedayDao;
+import com.huayue.attend.entity.CheckExact;
+import com.huayue.attend.entity.UserSpeday;
+import com.huayue.attend.service.AttendService;
+import com.huayue.framework.util.DateUtil;
+import com.huayue.framework.util.Format;
+import com.huayue.platform.entity.User;
+
+@Controller
+@SessionAttributes({"userMap","departMap","leaveTypeMap","deptMap","userDefaultDeptMap"})
+@RequestMapping("/extra")
+public class ExtraAttendController {
+	
+	private static Logger log = Logger.getLogger(ExtraAttendController.class);
+	
+	private static final String RESULT = "result";
+	
+	@Autowired
+	UserSpedayDao userSpedayDao;
+	
+	@Resource(name="attendService")
+	AttendService attendService;
+	
+	@ModelAttribute("userMap")
+	public Map<Integer,String> getUserMap(){
+		Map<Integer,String> map = attendService.getUserMap();
+		return map;
+	}
+ 	
+	@ModelAttribute("departMap")
+	public Map<Integer,String> getDepartMap(){
+		return attendService.getDepartmentMap();
+	}
+	
+	@ModelAttribute("leaveTypeMap")
+	public Map<Integer,String> getLeaveMap(){
+		return attendService.getLeaveTypeMap();
+	}
+	
+	@ModelAttribute("deptMap")
+	public Map<Integer,Integer> getDeptMap(){
+		return attendService.getDeptMap();
+	}
+	
+	@ModelAttribute("userDefaultDeptMap")
+	public Map<Integer,Integer> getUserDefaultDeptMap(){
+		return attendService.getUserDefaultDeptMap();
+	}
+	
+	@RequestMapping(value="add",method = RequestMethod.POST)
+	public String addExtraForm(UserSpeday userSpeday, HttpServletRequest request ,ModelMap model){
+		
+		try{
+			User user = (User)request.getSession().getAttribute("login_user");
+			userSpeday.setUserId((int)user.getId());
+		
+			userSpedayDao.add(userSpeday);
+			model.put(RESULT,"OK" );
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "submitback";
+	}
+	
+	@RequestMapping(value="show")
+	public String listExtraApply(HttpServletRequest request,ModelMap model)
+	{
+		int flag;
+		int deptId;
+		String sTime;
+		String eTime;
+		
+		try{
+			if(Format.isInteger(request.getParameter("flag"))) flag = Integer.parseInt(request.getParameter("flag"));
+			else flag = -1;				
+			
+			User user = (User)request.getSession().getAttribute("login_user");
+			
+			if(request.getParameter("deptId") == null){
+				if(null == request.getSession().getAttribute("deptMap")) deptId = 0;
+				else
+					deptId = ((Map<Integer,Integer>)request.getSession().getAttribute("deptMap")).get(user.getDeptId()) ; 
+			}
+			else if("".equals(request.getParameter("deptId"))){
+				deptId = 0;
+			}else{
+				deptId = Integer.parseInt(request.getParameter("deptId")) ;
+			}
+			
+			if(deptId == 1) deptId = 0;
+			sTime = request.getParameter("startTime") == null ? DateUtil.getMonthFirstDay() + " 00:00:00" : request.getParameter("startTime");
+			eTime = request.getParameter("endTime") == null ? DateUtil.getMonthLastDay() + " 23:59:00" : request.getParameter("endTime");
+						
+			model.put("applylist", userSpedayDao.listExtraApply(flag,deptId,sTime,eTime));
+			model.put("flag", flag);
+			model.put("deptId", deptId);
+			model.put("sTime", sTime);
+			model.put("eTime", eTime);
+			
+		}catch(Exception ex){
+			log.error(ex);
+		}
+		return "applylist";
+	}
+	
+	@RequestMapping(value="modifyAttend",method = RequestMethod.POST)
+	public String modifyAttendData(CheckExact cet,HttpServletRequest request,ModelMap model){
+		
+		try
+		{
+			User user = (User)request.getSession().getAttribute("login_user");
+			cet.setModifyBy(user.getName());
+			cet.setCheckTime(request.getParameter("date") + " " + request.getParameter("time"));
+			cet.setIsAdd(1);
+		
+			userSpedayDao.vefifyAttendData(cet);
+			model.put(RESULT, "OK");
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "submitback";
+	}
+	
+	@RequestMapping(value="showExact")
+	public String showExact(ModelMap model,HttpServletRequest request){
+		
+		User user = (User)request.getSession().getAttribute("login_user");
+
+		int status = Format.isInteger(request.getParameter("status")) ? Integer.parseInt(request.getParameter("status")) : -1;
+		
+		int deptId ;
+		
+		if(null == request.getParameter("deptId") ) {
+			if(null == request.getSession().getAttribute("deptMap")) deptId = 0;
+			else
+				deptId = ((Map<Integer,Integer>)request.getSession().getAttribute("deptMap")).get(user.getDeptId()) ; 
+		}
+		else if("".equals(request.getParameter("deptId")))
+			deptId = 0;
+		else{
+			deptId = Integer.parseInt(request.getParameter("deptId"));
+		}
+		
+		if(deptId == 1) deptId = 0;
+		String sTime = request.getParameter("startTime") == null ? DateUtil.getMonthFirstDay() + " 00:00:00" : request.getParameter("startTime");
+		String eTime = request.getParameter("endTime") == null ? DateUtil.getMonthLastDay() + " 23:59:00" : request.getParameter("endTime");
+		
+		model.put("exactList",userSpedayDao.listModifyDatas(deptId ,sTime, eTime, status));
+		model.put("status", status);
+		model.put("deptId", deptId);
+		model.put("sTime", sTime);
+		model.put("eTime", eTime);
+		
+		return "exact_list";
+	}
+	
+	@RequestMapping(value="checkLeave",method = RequestMethod.GET)
+	public String checkForLeave(@RequestParam(value="id",required = true)String id,@RequestParam(value="checkId",required = true)String checkId,ModelMap model){
+		
+		try{
+			userSpedayDao.checkForLeave(Integer.parseInt(id), Integer.parseInt(checkId));
+			model.put(RESULT, "OK");
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "leave_back";
+	}
+	
+	@RequestMapping(value="delLeaveReq",method = RequestMethod.GET)
+	public String delLeaveReq(@RequestParam(value="id",required = true)String id, ModelMap model){
+		try{
+			userSpedayDao.delLeaveReq(Integer.parseInt(id));
+			model.put(RESULT, "OK");
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "del_back";
+	}
+	
+	@RequestMapping(value="delExactReq",method = RequestMethod.GET)
+	public String delExactReq(@RequestParam(value="id",required = true)String id,ModelMap model){
+		try{
+			userSpedayDao.delExactReq(Integer.parseInt(id));
+			model.put(RESULT, "OK");
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "del_back";
+	}
+	
+	@RequestMapping(value="checkExact",method = RequestMethod.GET)
+	public String checkForExact(@RequestParam(value="id",required=true)String id,@RequestParam(value="checkId",required = true)String checkId,ModelMap model){
+		
+		try{
+			userSpedayDao.checkForExact(Integer.parseInt(id), Integer.parseInt(checkId));
+			model.put(RESULT, "OK");
+		}catch(Exception ex){
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+		return "exact_back";
+	}
+	
+	@RequestMapping(value="overWork")
+	public String computeWorkOverTime(ModelMap model ,HttpServletRequest request){
+		String sTime;
+		String eTime;
+		long id;
+		try{
+			User user = (User)request.getSession().getAttribute("login_user");
+			if(request.getParameter("userId") == null ) {				
+				id = user.getId();
+			}else{
+				id = Integer.parseInt(request.getParameter("userId"));
+			}
+			sTime = request.getParameter("startTime") == null ? DateUtil.getMonthFirstDay() + " 00:00:00" : request.getParameter("startTime");
+			eTime = request.getParameter("endTime") == null ? DateUtil.getMonthLastDay() + " 23:59:00" : request.getParameter("endTime");
+			
+			model.put("list", userSpedayDao.showOverTimeList(id, sTime, eTime));
+			model.put("sTime",sTime);
+			model.put("eTime", eTime);
+			model.put("userId",id );
+		}catch(Exception ex){
+			ex.printStackTrace();
+			log.error(ex);
+		}
+		return "overtime_result";
+	}
+	
+	@RequestMapping(value="totalOverWork",method = RequestMethod.GET)
+	public String computeTotalOverTime(ModelMap model ,HttpServletRequest request){
+		String sTime;
+		String eTime;
+		
+		try{
+			sTime = request.getParameter("sTime");
+			eTime = request.getParameter("eTime");
+			
+			model.put("map", userSpedayDao.showTotalOverTimeList(sTime, eTime));
+			model.put("sTime", sTime);
+			model.put("eTime", eTime);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			log.error(ex);
+		}
+		return "total_overTime";
+	}
+	
+	@RequestMapping(value="addWorkApply",method = RequestMethod.POST)
+	public String addWorkApply(ModelMap model ,HttpServletRequest request,UserSpeday userSpeday){
+		
+		try{
+			User user = (User)request.getSession().getAttribute("login_user");
+			userSpeday.setUserId((int)user.getId());
+			userSpeday.setTotalTime(Double.parseDouble(request.getParameter("totalTime")));
+			userSpedayDao.addOverTimeApply(userSpeday);
+			model.put(RESULT,"OK" );
+		}catch(Exception ex){
+			ex.printStackTrace();
+			model.put(RESULT, ex);
+			log.error(ex);
+		}
+	return "submitback";
+	}
+}

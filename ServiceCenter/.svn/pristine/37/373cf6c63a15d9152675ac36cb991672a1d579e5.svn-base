@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>无标题文档</title>
+    <style type="text/css">
+    *{
+        font-family:arial;
+        font-size:9pt;
+    }
+    </style>
+</head>
+<body>
+    <br />
+    <br />
+    <table width="300" border="0" align="center" cellpadding="0" cellspacing="0" style="border:solid 1px #ccc;">
+        <tr>
+            <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr valign="bottom">
+                <td width="11"><img src="top_left.gif" width="11" height="7" /></td>
+                <td align="left" background="top_border.gif" style="background-repeat: repeat-x; background-position: bottom;"><img src="cusp_up.gif" name="cusp0" id="cusp0" /></td>
+                <td width="35" align="center" valign="bottom"  background="top_border.gif" style="background-position: bottom; background-repeat: repeat-x;"><img src="cusp_up.gif" name="cusp1" id="cusp1" /></td>
+                <td align="right" background="top_border.gif" style="background-position: bottom; background-repeat: repeat-x;"><img src="cusp_up.gif" name="cusp2" id="cusp2" /></td>
+                <td width="18"><img src="top_right.gif" width="18" height="7" /></td>
+              </tr>
+            </table></td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="11" background="left_border.gif" style="background-repeat: repeat-y;">&nbsp;
+                            
+                      </td>
+                        <td valign="top">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="580" height="20">
+                                        <span style="font-family: 宋体; font-size: 9pt; color: #666;"><strong>原始文字 </strong></span>
+                                    </td>
+                                    <td width="25" align="center">
+                                        <a href="javascript:;">
+                                            <img src="close.gif" alt="Close" width="14" height="13" border="0" /></a></td>
+                                </tr>
+                                <tr>
+                                  <td height="25" colspan="2" valign="middle" style="border-top: dashed 1px #ccc;"><input type="text" value="Place interactive always-updated Alexa widgets on your site,and there is something others,but i can not put it here.i want to know hong long it could be. " style="border:0px;width:220px;font-family:arial;font-size:9pt;" /></td>
+                                </tr>
+                                <tr>
+                                    <td height="30" colspan="2" valign="middle" style="border-top: dashed 1px #ccc;">
+                                        <a href="javascript:void(test());" style="font-family: 宋体; font-size: 9pt; color: #666; text-decoration: none;">
+                                            <img src="expand.gif" alt="展开" width="14" height="13" hspace="2" vspace="2" border="0"
+                                                align="absmiddle" /><span>更好的翻译建议</span></a></td>
+                                </tr>
+                                <tr>
+                                    <td height="50" colspan="2" valign="top" id="tt" align="right">
+                                        <span id="aaa" >
+                                            <textarea name="_Content1" style="width: 98%;font-family: 宋体; font-size: 9pt;" rows="3" id="_Content1">在您的站点上放置自动更新的ALEXA小工具</textarea>
+                                            <input name="button2" type="button" value="提供建议" style="font-family: 宋体; font-size: 9pt;" />
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="18" background="right_border.gif" style="background-repeat: repeat-y;">&nbsp;
+                            
+                      </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="11" align="center" valign="top">
+                            <img src="left_bottom.gif" width="11" height="18" /></td>
+                        <td align="left" valign="top" background="bottom_border.gif" style="background-repeat: repeat-x;"><img src="cusp.gif" name="cusp3" width="39" id="cusp3" /> </td>
+                        <td width="39" align="center" valign="top" background="bottom_border.gif" style="background-repeat: repeat-x;">
+                            <img src="cusp.gif" name="cusp4" width="39" id="cusp4" /></td>
+                        <td align="right" valign="top" background="bottom_border.gif" style="background-repeat: repeat-x;"><img src="cusp.gif" name="cusp5" width="39" id="cusp5" /> </td>
+                        <td width="18" align="center" valign="top">
+                            <img src="right_bottom.gif" width="18" height="18" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+</table>
+    <p>&nbsp;
+</p>
+    <table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr valign="bottom">
+                        <td width="11">
+                            <img src="top_left.gif" width="11" height="7" /></td>
+                        <td background="top_border.gif" style="background-repeat: repeat-x; background-position: bottom;">&nbsp;
+                      </td>
+                        <td width="35" align="center" valign="bottom">
+                            <img src="cusp_up.gif" /></td>
+                        <td background="top_border.gif" style="background-position: bottom; background-repeat: repeat-x;">&nbsp;
+                      </td>
+                        <td width="18">
+                            <img src="top_right.gif" width="18" height="7" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="11" background="left_border.gif" style="background-repeat: repeat-y;">&nbsp;
+                      </td>
+                        <td valign="top">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="580" height="20">
+                                        <span style="font-family: 宋体; font-size: 9pt; color: #666;"><strong>原始文字 </strong></span>
+                                    </td>
+                                    <td width="25" align="center">
+                                        <a href="javascript:;">
+                                            <img src="close.gif" alt="Close" width="14" height="13" border="0" /></a></td>
+                                </tr>
+                                <tr>
+                                    <td height="25" colspan="2" valign="middle" style="border-top: dashed 1px #ccc;">
+                                        <span style="font-family: arial; font-size: 9pt;">Place interactive always-updated Alexa
+                                            widgets on your site.</span></td>
+                                </tr>
+                                <tr>
+                                    <td height="30" colspan="2" valign="middle" style="border-top: dashed 1px #ccc;">
+                                        <a href="javascript:;" style="font-family: 宋体; font-size: 9pt; color: #666; text-decoration: none;">
+                                            <img src="expand.gif" alt="展开" width="14" height="13" hspace="2" vspace="2" border="0"
+                                                align="absmiddle" /><span>更好的翻译建议</span></a></td>
+                                </tr>
+                                <tr>
+                                    <td height="50" colspan="2" valign="top" align="right">
+                                        <textarea name="textarea" style="width: 98%;border:solid 1px #ffffff;height:30px;" rows="3" id="textarea"></textarea>
+                                        <input name="button" type="button" value="提供建议" style="font-family: 宋体; font-size: 9pt;" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="18" background="right_border.gif" style="background-repeat: repeat-y;">&nbsp;
+                      </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="11" align="center" valign="top">
+                            <img src="left_bottom.gif" width="11" height="18" /></td>
+                        <td align="center" valign="top" background="bottom_border.gif" style="background-repeat: repeat-x;">&nbsp;
+                      </td>
+                        <td width="18" align="center" valign="top">
+                            <img src="right_bottom.gif" width="18" height="18" /></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+</table>
+    <p>&nbsp;
+</p>
+</body>
+</html>

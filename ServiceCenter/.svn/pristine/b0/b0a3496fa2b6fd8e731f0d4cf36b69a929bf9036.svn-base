@@ -1,0 +1,16 @@
+# mysql properties
+driverClassName=com.mysql.jdbc.Driver
+url=jdbc:mysql://106.120.102.150:3306/webdb
+userName=NvHhcc68XhE=
+password=hqfU9wbWWV5e2niZJknlvw==
+maxActive=100
+maxIdle=25
+maxWait=3000
+defaultAutoCommit=false
+
+
+# sql server properties
+s_driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
+s_url=jdbc:sqlserver://localhost:1433;databaseName=attend_db
+s_userName=VPfQlR9eHcM=
+s_password=kDzeRF+BvAE=
