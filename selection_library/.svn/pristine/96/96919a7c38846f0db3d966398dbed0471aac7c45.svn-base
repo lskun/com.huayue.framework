@@ -1,0 +1,22 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.huayue.library.common.NodeHelper;
+
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+public class BookManagerAct {
+	
+	@Autowired
+	NodeHelper nodeHelper;
+	
+	
+}

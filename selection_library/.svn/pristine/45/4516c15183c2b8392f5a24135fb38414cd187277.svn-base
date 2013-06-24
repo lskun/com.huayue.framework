@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huayue.library.mapper.ActicleMapper">
+	<insert id="addObj" parameterType="Acticle">
+		INSERT INTO library_acticle 
+			name,
+			author,
+			country_id,
+			genre,
+			presentation,
+			origin,
+			first_content_id,
+			second_content_id,
+			comment,
+			directory,
+			suffix,
+			size,
+			famous_masterpiece,
+			times,
+			version,
+			create_time,
+			user_id
+		VALUES(
+			#{name},
+			#{author},
+			#{countryId},
+			#{genre},
+			#{persentation},
+			#{origin},
+			#{firConId},
+			#{secConId},
+			#{comment},
+			#{directory},
+			#{suffix},
+			#{size},
+			#{famousMasterPiece},
+			#{times},
+			#{version},
+			#{createTime},
+			#{userId}
+		)	
+	</insert>
+	<select id="findByPage" resultMap="Acticle" parameterType="Page">
+		
+	</select>
+</mapper> 

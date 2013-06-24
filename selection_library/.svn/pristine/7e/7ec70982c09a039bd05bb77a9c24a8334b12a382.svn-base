@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huayue.library.mapper.BookMapper">
+	<sql id="bookColumns">
+		id ,name ,author ,publisher ,book_description ,hierarchical_node  ,create_time ,category_id
+	</sql>
+	<insert id="addObj" parameterType="Book">
+		INSERT INTO library_book_info 
+			(name ,author ,publisher ,user_id ,publish_date ,create_time ,category_id ,book_description ,hierarchical_node)
+		VALUES
+			(#{name} ,#{author} ,#{publisher} ,#{userId} ,#{publishDate} ,#{createTime} ,#{categoryId} ,#{bookDescription} ,#{hierarchicalNode})	
+	</insert>
+	<select id="findByPage" resultMap="bookMap" parameterType="Page">
+		SELECT 
+			<include refid="bookColumns"/>
+		FROM library_book_info 
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="params.hierarchical_relation !=null and params.hierarchical_relation !=''">
+				hierarchical_node like CONCAT('',#{params.hierarchical_relation},'%') 
+			</if>
+			<if test="params.bookName != null and params.bookName !=''">
+				and name like CONCAT('%',#{params.bookName},'%')
+			</if>
+			<if test="params.author != null and params.author !=''">
+				and author like CONCAT('%',#{params.author},'%')
+			</if>
+			<if test="params.publisher != null and params.publisher !=''">
+				and publisher like CONCAT('%',#{params.publisher},'%')
+			</if>
+			<if test="params.stime != null and params.stime !=''">
+				and create_time &gt; #{params.stime}
+			</if>
+			<if test="params.etime != null and params.etime !=''">
+				and create_time &lt; #{params.etime}
+			</if>
+		</trim>
+		ORDER BY id DESC
+	</select>
+	<select id="findByID" resultMap="bookResult" parameterType="int">
+		SELECT 
+			B.id,
+			B.name,
+			B.author,
+			B.publisher,
+			B.user_id,
+			B.publish_date,
+			B.book_description,
+			B.create_time,
+			B.category_id,
+			A.id as acticle_id,
+			A.name as acticle_name,
+			A.author as acticle_author,
+			A.country_id as acticle_country_id,
+			A.genre as acticle_genre,
+			A.presentation as acticle_presentation,
+			A.first_content_id,
+			A.second_content_id
+		FROM library_book_info B
+			left outer join library_acticle A on A.id IN (SELECT C.acticle_id FROM library_relation_mapping C WHERE C.book_id = B.id AND C.is_deleted = 0)
+		WHERE B.id = #{id}			
+	</select>
+	
+	<update id="updateBookInfo" parameterType="Book">
+		UPDATE library_book_info 
+			SET name = #{name},
+				author = #{author},
+				publisher = #{publisher},
+				book_description = #{bookDescription}
+			WHERE id = #{id}	
+	</update>
+	
+	<update id="deleteMappings" parameterType="int">
+		UPDATE library_relation_mapping SET is_deleted = 1 WHERE book_id = #{id}
+	</update>
+	
+	<insert id="updateMappings" parameterType="java.util.List">
+		INSERT INTO library_relation_mapping (book_id ,acticle_id) VALUES 
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.bookId},#{item.acticleId})
+		</foreach>
+	</insert>
+</mapper>    

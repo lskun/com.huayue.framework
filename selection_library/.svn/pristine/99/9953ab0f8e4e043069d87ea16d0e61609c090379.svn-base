@@ -1,0 +1,152 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>    
+    <title>acticle information</title>   
+	<link rel="stylesheet" type="text/css" href="/css/dev.css">
+	<link rel="stylesheet" type="text/css" href="/css/admin.css" />
+    <link rel="stylesheet" type="text/css" href="/css/theme.css" />
+	<script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+  </head>  
+  <body>
+     <div class="box-positon">
+		<div class="rpos">当前位置: 文章 - 编辑内容</div>
+			<input class="ropt return-button" style="margin:5px 0 0 5px" type="submit" onclick="javascript:history.back(-1);" value="返回列表"/>
+		<div class="clear"></div>
+	</div>
+	<div class="body-box" style="margin-top:10px;">
+			<form action="${pageContext.request.contextPath }/acticle/update.do" method="post">
+				<input type="hidden" name="id" value="${acticle.id }"/>
+        		 <table class="dwmc" width="100%" cellspacing="1" cellpadding="2" border="0">
+        		   <tr>
+        		     <td width="13%" style="background-color:#E6F2FE">文章篇名:</td>
+        		     <td ><input name="name" maxlength="50" class="input_box" type="text" value="${acticle.name }" size="40" style="vertical-align: middle;color: #555555;width:50%;float:left;margin-left:5px;"/><span style="color:red;float:left;">&nbsp;*</span></td>
+        		   	 <td width="13%" style="background-color:#E6F2FE">作者:</td>
+        		     <td width="37%"><input name="author" maxlength="10" class="input_box" type="text" value="${acticle.author }" style="width:25%;float:left;margin-left:5px;"/></td>
+        		   </tr>
+        		   <tr>
+        		     <td width="13%" style="background-color:#E6F2FE">国别:</td>
+        		     <td>  
+        		     	<select name="countryId" style="float:left;margin-left:5px;width:20%;">
+        		     		<option value="-1">--请选择--</option>
+        		     		<c:forEach items="${countries}" var="item" varStatus="status">
+        		     			<option value="${status.count - 1}" <c:if test="${acticle.countryId == (status.count-1) }">selected</c:if>>${item}</option>
+        		     		</c:forEach>
+        		     	</select>
+					</td>
+					<td width="13%" style="background-color:#E6F2FE">体裁:</td>
+					<td>			
+						<select name="genre" style="float:left;margin-left:5px;width:20%;">
+							<option value="">--请选择--</option>
+							<c:forEach items="${genres}" var="v">
+								<option value="${v}" <c:if test="${acticle.genre == v }">selected</c:if>>${v}</option>
+							</c:forEach>
+						</select>	
+        		   	</td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td style="background-color:#E6F2FE;">表达方式: </td>
+        		     <td style="text-align:left">
+        		     	<select name="presentation" style="width:20%;margin-left:5px;">
+        		     		<c:forEach items="${presentations}" var="p">
+        		     			<option value="${p}" <c:if test="${acticle.presentation == p }">selected</c:if>>${p}</option>
+        		     		</c:forEach>
+        		     	</select>
+        		     </td>
+        		     <td style="background-color:#E6F2FE">来源: </td>
+        		     <td>
+        		     	<input name="origin" class="input_box" type="text" value="${acticle.origin }" style="color: #555555;width:25%;margin-left:5px;float:left"/>
+        		     </td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td style="background-color:#E6F2FE">一级内容:</td>
+        		     <td style="text-align:left">
+						<select style="float:left;margin-left:5px;width:20%;" name="firConId">
+							<c:forEach items="${contentMap}" var="v">
+								<option value="${v.key}" <c:if test="${acticle.firConId == v.key }">selected</c:if>>${v.value }</option>
+							</c:forEach>							    
+						</select>
+        		     </td>
+        		     <td style="background-color:#E6F2FE">二级内容：</td>
+        		   	 <td style="text-align:left">
+        		   	 	<select style="float:left;margin-left:5px;width:20%;" name="secConId">
+							<c:forEach items="${contentMap}" var="v">
+								<option value="${v.key}" <c:if test="${acticle.secConId == v.key}">selected</c:if>>${v.value }</option>
+							</c:forEach>							    
+						</select>
+        		   	 </td>
+        		     
+        		   </tr>
+        		   <tr>        		     
+        		     <td width="13%" style="background-color:#E6F2FE">描述：</td>
+	        		     <td style="text-align:left" width="37%">
+	        		     	<input class="input_box" name="comment" value="${acticle.comment }" maxlength="100" type="text" size="40" style="vertical-align: middle;color: #555555;width:95%;margin-left:5px">
+	        		     </td>
+        		     <td width="13%" style="background-color:#E6F2FE">名家名篇:</td>
+        		     <td style="text-align:left" width="37%">
+        		     	<select name="famousMasterpiece" style="float:left;margin-left:5px;width:20%;">
+        		     		<c:forEach items="${famousMasterPieces}" var="fmp">
+        		     			<option value="${fmp}" <c:if test="${acticle.famousMasterpiece == fmp }">selected</c:if>>${fmp}</option>
+        		     		</c:forEach>
+        		     	</select>
+        		     </td>
+        		   </tr>
+        		   <tr>        		     
+        		     <td style="background-color:#E6F2FE">时代:</td>
+        		     <td style="text-align:left">
+        		     	<select name="times" style="float:left;margin-left:5px;width:20%;">
+        		     		<c:forEach items="${times}" var="t">
+        		     			<option value="${t}" <c:if test="${acticle.times == t }">selected</c:if>>${t}</option>
+        		     		</c:forEach>
+        		     	</select>
+        		     </td>
+        		     <td style="background-color:#E6F2FE">版本:</td>
+        		     <td style="text-align:left"><input name="version" type="text" value="${acticle.version }" class="input_box" style="width:25%;float:left;margin-left:5px;"></td>
+        		   </tr>
+        		   <tr>
+        		   		<td style="background-color:#E6F2FE;text-align:center">引用此文章的书籍:</td>
+        		   		<td colspan="3">
+        		   			<div>
+							<table id="tabmodel" class="dwmc" width="100%" cellspacing="1" cellpadding="2" border="0">
+								<tbody>
+								<tr style="font-weight: bold;text-align:center;" background="/images/search.gif">
+									<td>ID</td>
+									<td>书名</td>
+									<td>出版社</td>
+									<td>描述</td>
+									<td>所属类别</td>
+									<td>操作</td>
+								</tr>
+								<c:forEach items="${acticle.books }" var="book">
+									<tr height=26 style="text-align:center;" bgcolor=#FFFFFF onMouseOver="style.backgroundColor='#fff8d8'" onMouseOut="style.backgroundColor='#ffffff';">
+										<td>${book.id }</td>
+										<td>${book.name }</td>
+										<td>${book.publisher }</td>
+										<td>${book.bookDescription }</td>
+										<td>${nodeMap[book.categoryId] }</td>
+										<td><a class="pn-opt" style="color:green" href="${pageContext.request.contextPath }/book/showDetail.do?id=${book.id}">查看详情</a></td>
+									</tr>
+								</c:forEach>
+								</tbody>
+							</table>	
+        		   </tr>       		         	        		         		          		   
+        		 </table>
+        		 <div style="margin:5px;text-align:right;"><input style="cursor: pointer;" type="submit" class="submit" value="提交" onclick="javascript:if(!confirm('确定提交该文章信息吗?')) return false;"></div>
+        	</form>	 
+        		 <c:if test="${fileContent !=null }">	
+        		 <table class="dwmc" width="100%" cellspacing="1" cellpadding="2" border="0">
+        		 	<tr>
+        		 		<td style="background-color:#E6F2FE" colspan=4 align=center><strong>正文内容</strong></td>
+        		 	</tr>
+        		 	<tr>
+        		   		<td colspan="4" style="text-align:left;">
+        		   			${fileContent}
+        		   		</td>
+        		   </tr> 
+        		 </table>
+        		 </c:if>       		  
+        	</div>
+        	<br/>
+  </body>
+</html>

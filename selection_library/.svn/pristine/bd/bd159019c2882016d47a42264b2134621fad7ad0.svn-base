@@ -1,0 +1,210 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.huayue.framework.util.Format;
+import com.huayue.framework.util.Page;
+import com.huayue.library.domain.Acticle;
+import com.huayue.library.domain.User;
+import com.huayue.library.service.ActicleManagerService;
+import com.huayue.library.util.Constants;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+@RequestMapping("acticle")
+public class ActicleManagerAct {
+	
+	private static Logger log = Logger.getLogger(ActicleManagerAct.class);
+	
+	private static ArrayList<String> PARAMS = new ArrayList<String>(4);
+	
+	static{
+		PARAMS.add("acticleName");
+		PARAMS.add("author");
+		PARAMS.add("genre");
+		PARAMS.add("presentation");
+	}
+	
+	@Autowired
+	private ActicleManagerService acticleManagerService;
+	
+	@RequestMapping(value="addView",method=RequestMethod.GET)
+	public String addView(){ return "acticle/addActicle"; }
+	
+	@RequestMapping(value="addActicle",method= RequestMethod.POST)
+	public String addActicle(Acticle acticle,@RequestParam("file") MultipartFile multipartFile,ModelMap model,HttpServletRequest request) 
+			throws Exception, IOException {
+		File des;
+		String directory = "";
+		String target = "feedback";
+		if(!multipartFile.isEmpty()){
+			long fileSize = multipartFile.getSize();
+			if(fileSize > 10 * 1024 * 1024) throw new Exception("上传文件大小超过指定的大小!");
+			String fileName = multipartFile.getOriginalFilename();
+			directory = Constants.BASEPATH + File.separator + fileName;
+			des = new File(directory);
+			
+			//保存文件到本地路径
+			multipartFile.transferTo(des); 
+			//设置文件大小
+			acticle.setSize(fileSize);
+			//设置文件后缀名
+			acticle.setSuffix(fileName.substring(fileName.lastIndexOf(".") + 1));
+		}
+		acticle.setDirectory(directory)	;
+		acticle.setCreateTime(System.currentTimeMillis());
+		acticle.setUserId(
+				((User)request.getSession().getAttribute("login_user")).getId());
+		
+		acticleManagerService.addObj(acticle); //}catch(Exception ex){
+		model.addAttribute(Constants.RESULT, Constants.ADD_SUCCESS_TEXT);
+		model.addAttribute("url", "showActicles.do");
+		return target;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="showActicles")
+	public String showActicles(HttpServletRequest request,ModelMap model){
+		//Page<Acticle> collections = acticleManagerService.findByPage(request, "com.huayue.library.mapper.ActicleMapper.findActicles");
+		//model.put("pagination", collections);
+		Page<Acticle> page = new Page<Acticle>();
+		
+		String strIndex = request.getParameter(Constants.PAGE_INDEX);
+		String strSize = request.getParameter(Constants.PAGE_SIZE);
+		int pageIndex = Format.isInteger(strIndex) ? Integer.parseInt(strIndex) : page.getPageIndex();
+		int pageSize = Format.isInteger(strSize) ? Integer.parseInt(strSize) : page.getPageSize();
+		page.setPageIndex(pageIndex);
+		page.setPageSize(pageSize);
+		for(java.util.Iterator iterator = request.getParameterMap().keySet().iterator() ; iterator.hasNext(); ){
+			String name = (String)iterator.next();
+			page.getParams().put(name, request.getParameter(name));
+		}
+		
+		page = acticleManagerService.findByPage(page);
+		model.addAttribute("acticlePagination", page);
+		
+		return "acticle/searchList";
+	}
+	
+	@RequestMapping(value="findByID",method=RequestMethod.GET)
+	public String showInfomationByID(@RequestParam(value="id",required=true)int id,ModelMap model) throws IOException{
+		Acticle acticle = acticleManagerService.findByID(id);
+		model.addAttribute("acticle", acticle);
+		String directory = acticle.getDirectory();
+		if(!StringUtils.isBlank(directory) && "txt".equals(acticle.getSuffix())){
+			String content = FileUtils.readFileToString(new File(directory), "UTF-8");
+			model.addAttribute("fileContent", Format.toHTML(content));
+		}
+		return "acticle/info";
+	}
+	
+	@RequestMapping(value="edit/{id}",method=RequestMethod.GET)
+	public String editInformationByID(@PathVariable("id")int id,ModelMap model) throws IOException{
+		Acticle acticle = acticleManagerService.findByID(id);
+		model.addAttribute("acticle", acticle);
+		String directory = acticle.getDirectory();
+		if(!StringUtils.isBlank(directory) && "txt".equals(acticle.getSuffix())){
+			String content = FileUtils.readFileToString(new File(directory), "UTF-8");		
+			model.addAttribute("fileContent", Format.toHTML(content));
+		}
+		return "acticle/editInfo";
+	}
+	
+	@RequestMapping(value="update",method=RequestMethod.POST)
+	public String updateActicle(Acticle acticle, ModelMap model){
+		acticleManagerService.update(acticle);
+		model.addAttribute(Constants.RESULT, Constants.UPDATE_SUCCESS_TEXT);
+		model.addAttribute(Constants.URL, "showActicles.do");
+		return "feedback";
+	}
+	
+	@RequestMapping(value="delete/{id}",method=RequestMethod.POST)
+	public void deleteActicle(@PathVariable("id")int id,HttpServletResponse response) throws IOException{
+		acticleManagerService.deleteByID(id);
+		response.getWriter().print("OK");
+	}
+	
+	@RequestMapping(value="searchData",method=RequestMethod.GET)
+	public @ResponseBody Page<Acticle> searchData(HttpServletRequest request) throws UnsupportedEncodingException{
+		Page<Acticle> page = new Page<Acticle>();
+		
+		String strIndex = request.getParameter(Constants.PAGE_INDEX);
+		String strSize = request.getParameter(Constants.PAGE_SIZE);
+		int pageIndex = Format.isInteger(strIndex) ? Integer.parseInt(strIndex) : page.getPageIndex();
+		int pageSize = Format.isInteger(strSize) ? Integer.parseInt(strSize) : page.getPageSize();
+		page.setPageIndex(pageIndex);
+		page.setPageSize(pageSize);
+		Map<String,String[]> map = request.getParameterMap();
+		for(Map.Entry<String, String[]> entry : map.entrySet()){
+			if(PARAMS.contains(entry.getKey())){
+				page.getParams().put(entry.getKey(), java.net.URLDecoder.decode(entry.getValue()[0], "UTF-8"));
+			}else{
+				page.getParams().put(entry.getKey(), entry.getValue()[0]);
+			}
+				
+		}
+		
+		page = acticleManagerService.findByPage(page);
+		return page;
+	}
+	
+	@RequestMapping("downFile")
+	public void downloadFile(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		OutputStream os = response.getOutputStream();	
+		response.addHeader("Content-Type", "application/x-msdownload");
+		
+		Resource res = null;
+		String directory = acticleManagerService.getDirectory(Integer.parseInt(request.getParameter("id")));
+		
+		if(!StringUtils.isBlank(directory)){
+			res = new FileSystemResource(directory);
+			response.setHeader("Content-Disposition", "attachment; filename=" + new String(directory.substring(directory.lastIndexOf("\\")).getBytes("UTF-8"), "ISO8859-1"));
+			byte[] buffer = IOUtils.toByteArray(new BufferedInputStream(res.getInputStream()));
+			os.write(buffer);
+		}
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

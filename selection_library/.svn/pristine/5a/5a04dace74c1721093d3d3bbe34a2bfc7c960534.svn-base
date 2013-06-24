@@ -1,0 +1,6 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@page import="com.huayue.framework.util.Utils"%>
+<%
+	String info = String.valueOf(request.getAttribute("addsuccess"));
+	out.println(Utils.getTipHtml("提示信息",info,String.valueOf(request.getAttribute("url"))));
+%>

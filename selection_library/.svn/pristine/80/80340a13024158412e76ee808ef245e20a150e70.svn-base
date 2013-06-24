@@ -1,0 +1,19 @@
+/**
+ * 
+ */
+package com.huayue.library.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import com.huayue.library.dao.BookManagerDao;
+import com.huayue.library.domain.Book;
+import com.huayue.library.mapper.BookMapper;
+import com.huayue.framework.dao.impl.BaseDaoImpl;
+/**
+ * @author lsk0414
+ *
+ */
+@Repository
+public class BookManagerDaoImpl extends BaseDaoImpl<Book ,BookMapper> implements BookManagerDao{
+
+}

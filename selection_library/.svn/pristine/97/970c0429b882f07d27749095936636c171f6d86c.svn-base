@@ -1,0 +1,25 @@
+/**
+ * 
+ */
+package com.huayue.library.service;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.huayue.framework.service.BaseService;
+import com.huayue.framework.util.Page;
+import com.huayue.library.domain.Category;
+
+/**
+ * @author lsk0414
+ *
+ */
+public interface LibraryCategoryService extends BaseService<Category>{
+	
+	Page<Category> showCategories(Page<Category> page);
+	
+	List<Category> findChildrenCategory(int categoryId);
+		
+	java.util.Map<Integer,String> getNodeMap();
+}

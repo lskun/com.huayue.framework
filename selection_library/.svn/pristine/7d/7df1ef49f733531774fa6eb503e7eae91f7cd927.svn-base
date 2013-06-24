@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package com.huayue.library.common;
+
+/**
+ * @author lsk0414
+ *
+ */
+public class HierarchicalRelationHelper {
+	public static String generateHierarchicalRelation(String parentStr){
+		return null;
+	}
+}

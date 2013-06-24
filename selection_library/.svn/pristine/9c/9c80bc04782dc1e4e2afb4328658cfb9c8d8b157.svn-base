@@ -1,0 +1,44 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.huayue.framework.util.Page;
+import com.huayue.library.domain.Category;
+import com.huayue.library.service.LibraryCategoryService;
+import com.huayue.library.util.Constants;
+
+/**
+ * @author lsk0414
+ *
+ */
+@RequestMapping("category")
+public class LibraryCategoryAct {
+	
+	@Autowired
+	LibraryCategoryService libraryCategoryService;
+	
+	@RequestMapping(value="addCategory",method = RequestMethod.POST)
+	public String addCategory(Category category,ModelMap model){
+		libraryCategoryService.addObj(category);
+		model.addAttribute(Constants.RESULT, Constants.SUCCESS);
+		return "/category/feedback";
+	}
+	
+	@RequestMapping(value="searchCategories")
+	public String findByPage(HttpServletRequest request,ModelMap model){
+		Page<Category> collections = new Page<Category>();
+		collections = libraryCategoryService.showCategories(collections);
+		model.addAttribute("pagination", collections);
+		model.addAttribute(Constants.RESULT, Constants.SUCCESS);
+		return "/category/search_list";
+	}
+	
+}

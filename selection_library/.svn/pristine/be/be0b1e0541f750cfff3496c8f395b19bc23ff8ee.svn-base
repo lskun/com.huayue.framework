@@ -1,0 +1,55 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>文章信息添加</title>
+	<link rel="stylesheet" type="text/css" href="/css/dev.css">
+	<script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+	<div class="box-positon">
+		<div class="rpos">当前位置: 书籍 - 添加记录</div>
+		<div class="clear"></div>
+	</div>
+	<form action='<c:url value="/book/add.do" />' method="post">
+	<div class="body-box" style="margin-top:10px;">
+		<table class="dwmc" width="100%" cellspacing="1" cellpadding="2" border="0">
+			<tr>
+				<td width="13%" style="background-color:#E6F2FE">所属类别:</td>
+				<td colspan="3">
+					<select name="categoryId" style="float:left;margin-left:5px;">
+						<option value="">---请选择---</option>
+						<c:forEach items="${nodeList}" var="node">
+							<option value="${node.id}">${node.deepStr}>${node.nodeName}</option>
+						</c:forEach>
+					</select><span style="color:green;float:left;margin-left:5px;">只能选择末级分类</span>
+				</td>
+			</tr>
+			<tr>
+				<td width="13%" style="background-color:#E6F2FE">书名:</td>
+				<td width="37%"><input name="name" maxlength="10" class="input_box" type="text" style="width:25%;float:left;margin-left:5px;"/></td>
+				<td width="13%" style="background-color:#E6F2FE">作者:</td>
+				<td width="37%"><input name="author" maxlength="10" class="input_box" type="text" style="width:25%;float:left;margin-left:5px;"/></td>				
+			</tr>
+			<tr>
+				<td width="13%" style="background-color:#E6F2FE">出版社:</td>
+				<td width="37%"><input name="publisher" maxlength="10" class="input_box" type="text" style="width:25%;float:left;margin-left:5px;"/></td>
+				<td width="13%" style="background-color:#E6F2FE">出版日期:</td>
+				<td width="37%"><input id="time" name="time" style="margin-left:5px;" type="text" class="input_box" size="30" onfocus="WdatePicker({lang:'zh-cn',dateFmt:'yyyy-MM-dd'})"/></td>
+			</tr>
+			<tr>
+				<td width="13%" style="background-color:#E6F2FE;height:27px;">相关描述:</td>
+				<td colspan="3">
+					<textarea style="float:left;margin-left:5px;" maxlength="255" name="bookDescription" rows="3" cols="70"></textarea>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="text-align:center;margin-top:10px;"><input style="cursor: pointer;" type="submit" class="submit" value="提交" onclick="javascript:if(!confirm('确定提交该文章信息吗?')) return false;">
+        		 	&nbsp;&nbsp;<input type="reset" class="reset" value="重置" style="cursor: pointer;"></div>\
+    </form>    		 	
+</body>
+</html>

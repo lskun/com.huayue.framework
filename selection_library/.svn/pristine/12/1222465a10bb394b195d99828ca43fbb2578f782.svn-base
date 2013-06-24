@@ -1,0 +1,35 @@
+/**
+ * 
+ */
+package com.huayue.library.util;
+
+/**
+ * @author lsk0414
+ *
+ */
+public class Constants {
+	
+	public static final String BASEPATH = "D:\\temp";
+	
+	public static final String RESULT = "result";
+	
+	public static final String SUCCESS = "OK";
+	
+	public static final String ERROR_MSG = "error_message";
+	
+	public static final String PAGE_INDEX = "pageIndex";
+	
+	public static final String PAGE_SIZE = "pageSize";
+	
+	public static final String ADD_SUCCESS = "addsuccess";
+	
+	public static final String ADD_SUCCESS_TEXT = "数据添加成功!";
+	
+	public static final String UPDATE_SUCCESS = "updatesuccess";
+	
+	public static final String UPDATE_SUCCESS_TEXT = "数据更新成功!";
+	
+	public static final String HIERARCHICAL_RELATION = "hierarchical_relation";
+	
+	public static final String URL = "url";
+}

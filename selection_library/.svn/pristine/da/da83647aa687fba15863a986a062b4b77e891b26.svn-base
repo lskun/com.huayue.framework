@@ -1,0 +1,26 @@
+/**
+ * 
+ */
+package com.huayue.library.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import com.huayue.framework.dao.impl.BaseDaoImpl;
+import com.huayue.library.dao.UserDao;
+import com.huayue.library.domain.User;
+import com.huayue.library.mapper.UserMapper;
+/**
+ * @author lsk0414
+ *
+ */
+@Repository
+public class UserDaoImpl extends BaseDaoImpl<User,UserMapper> implements UserDao{
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.dao.UserDao#login(com.huayue.library.domain.User)
+	 */
+	public User login(User user) {
+		// TODO Auto-generated method stub
+		return getMapper().login(user);
+	}
+}

@@ -1,0 +1,168 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.huayue.library.common.TreeNode;
+import com.huayue.library.dao.UserDao;
+import com.huayue.library.domain.User;
+import com.huayue.library.service.LibraryCategoryService;
+import com.huayue.library.util.Constants;
+
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+@RequestMapping("user")
+@SessionAttributes({"userMap","nodeMap","nodeMapping","treenodes",
+	"countries","genres","presentations","famousMasterPieces","times","contentMap"})
+public class AdminLocalAct {
+	
+	private static Logger log = Logger.getLogger(AdminLocalAct.class);
+	
+	public static String[] countries ;
+	
+	public static String[] genres;
+	
+	public static String[] presentations;
+	
+	public static String[] famousMasterPieces;
+	
+	public static String[] times;
+	
+	public static Map<Integer,String> contentMap = new HashMap<Integer,String>();
+	
+	//相关属性配置文件位置
+	private static final String PROPERTY_PATH = "/config/acticle_config.properties";
+	
+	//加载属性文件
+	static{		
+		InputStream is = ActicleManagerAct.class.getResourceAsStream(PROPERTY_PATH);
+		Properties properties = new Properties();
+		try {
+			properties.load(is);
+		} catch (IOException e) {
+			log.error(" acticle.properties can't found or load failed by : " + e);
+		}
+				
+		countries = properties.getProperty("country").split(",");
+		genres = properties.getProperty("genre").split(",");
+		presentations = properties.getProperty("presentation").split(",");
+		famousMasterPieces = properties.getProperty("famousMasterpiece").split(",");
+		times = properties.getProperty("times").split(",");
+		
+		String[] contents = properties.getProperty("content").split(",");
+		
+		for(int i = 0 ; i < contents.length; i++ ){
+			contentMap.put(i, contents[i]);
+		}
+		
+	}
+	
+	@ModelAttribute("countries")
+	public String[] loadCountries(){ return countries; }
+	
+	@ModelAttribute("genres")
+	public String[] loadGenres(){ return genres; }
+	
+	@ModelAttribute("presentations")
+	public String[] loadPresentations(){ return presentations; }
+	
+	@ModelAttribute("famousMasterPieces")
+	public String[] loadFamousMasterPieces(){ return famousMasterPieces; }
+	
+	@ModelAttribute("times")
+	public String[] loadTimes(){ return times ; }
+	
+	@ModelAttribute("contentMap")
+	public Map<Integer,String> loadContentMap(){ return contentMap; }
+	
+	@Autowired
+	UserDao userDao;
+	
+	@Autowired
+	LibraryCategoryService libraryCategoryService;
+	
+	@ModelAttribute("userMap")
+	public java.util.Map<Integer,String> getUserMap(){
+		return userDao.generateUserMap();
+	}
+	
+	@ModelAttribute("nodeMap")
+	public Map<Integer,String> getNodeMap(){
+		return libraryCategoryService.getNodeMap();
+	}
+	
+	@ModelAttribute("nodeMapping")
+	/**
+	 * 层级关系对照 key#id ,value#hierarchical_relation
+	 * @return
+	 */
+	public Map<Integer,String> getNodeMapping(){
+		return libraryCategoryService.getHierarchicalRelations();
+	}
+	
+	@ModelAttribute("treenodes")
+	public Set<TreeNode> getTreeNodeList(){
+		return libraryCategoryService.getTreeNodeList();
+	}
+	
+	@RequestMapping(value="login",method=RequestMethod.POST)
+	public void doLogin(User user ,HttpServletRequest request,HttpServletResponse response) throws Exception{
+
+		if(null == user.getName() || "".equals(user.getName())|| null == user.getPassword() || "".equals(user.getPassword())){
+			request.setAttribute(Constants.ERROR_MSG, "用户名或密码不能为空!");
+			request.getRequestDispatcher("/login.jsp").forward(request, response);
+		}else{
+			if(null != (user = userDao.login(user))){
+				request.getSession().setAttribute("login_user", user);
+				response.sendRedirect("/index.jsp");
+			}else{
+				request.setAttribute(Constants.ERROR_MSG, "用户名或密码有误!");
+				request.getRequestDispatcher("/login.jsp").forward(request, response);
+			}
+		}
+	}
+	
+	@RequestMapping(value="logout",method = RequestMethod.GET)
+	public void logout(HttpServletResponse response,HttpServletRequest request) throws IOException{
+		request.getSession().removeAttribute("login_user");
+		response.sendRedirect("/login.jsp");
+	}
+	
+	@RequestMapping(value="updateUser")
+	public void updateUser(User user,HttpServletResponse response) throws IOException {
+
+		userDao.update(user);
+		response.getWriter().print(user.getPassword());
+		
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

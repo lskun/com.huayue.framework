@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huayue.library.mapper.ActicleMapper">
+	<sql id="acticleColumns">
+		name,
+		author,
+		country_id,
+		genre,
+		presentation,
+		origin,
+		first_content_id,
+		second_content_id,
+		comment,
+		directory,
+		suffix,
+		size,
+		famous_masterpiece,
+		times,
+		version,
+		create_time,
+		user_id
+	</sql>
+	<insert id="addObj" parameterType="acticle">
+		INSERT INTO library_acticle 
+		(   
+			<include refid="acticleColumns"/>
+		)
+		VALUES
+		(
+			#{name},
+			#{author},
+			#{countryId},
+			#{genre},
+			#{presentation},
+			#{origin},
+			#{firConId},
+			#{secConId},
+			#{comment},
+			#{directory},
+			#{suffix},
+			#{size},
+			#{famousMasterpiece},
+			#{times},
+			#{version},
+			#{createTime},
+			#{userId}
+		)	
+	</insert>
+	<select id="findByPage" resultMap="acticleMap" parameterType="Page">
+		SELECT 
+			id,<include refid="acticleColumns"/>
+		FROM library_acticle
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="params.acticleName != null and params.acticleName != ''"> name like '%#{params.acticleName}%' </if>
+			<if test="params.author != null and params.author != ''"> AND author like '%#{params.author}%'</if>
+			<if test="params.genre != null and params.genre !=''"> AND genre = #{params.genre}</if>
+			<if test="params.countryId != null and params.countryId !=''"> AND country_id = #{params.countryId}</if>
+			<if test="params.presentation != null and params.presentation !=''"> AND presentation = #{params.presentation}</if>
+			<if test="params.firConId != null and params.firConId !=''"> AND first_content_id = #{params.firConId}</if>
+			<if test="params.secConId != null and params.secConId !=''"> AND second_content_id = #{params.secConId}</if>
+		</trim>	
+		ORDER BY id DESC		
+	</select>
+	
+	<select id="findById" parameterType="int"></select>
+</mapper> 

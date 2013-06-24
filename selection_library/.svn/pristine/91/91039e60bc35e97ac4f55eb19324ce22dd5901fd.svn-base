@@ -1,0 +1,105 @@
+/**
+ * 
+ */
+package com.huayue.library.common;
+
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.huayue.library.domain.Category;
+import com.huayue.library.service.LibraryCategoryService;
+
+/**
+ * @author lsk0414
+ *
+ */
+@Repository
+public class CategoryNodeHelper {
+	
+	public static final Logger log = Logger.getLogger(CategoryNodeHelper.class);
+	
+	@Autowired
+	LibraryCategoryService libraryCategoryService;
+	
+	// ========================= 产生jquery.treeview的jsonstring=================//
+	public String generateJTVJsonString(String root){
+		boolean isRoot;
+		String output = "";
+		// jquery treeview的根请求为root=source
+		if(StringUtils.isBlank(root) || "source".equals(root)){
+			isRoot = true;
+		}else{
+			isRoot = false;
+		}
+		if(isRoot) output = generateInitTreeString();
+		else output = generateTreeChildNodeString(Integer.parseInt(root));		
+		return output;
+	}
+	
+	//根节点
+	private String generateInitTreeString(){
+		StringBuilder jsonString = new StringBuilder();
+		jsonString.append("[");
+		List<Category> categories = libraryCategoryService.findChildrenCategory(0);
+		if(categories.isEmpty()) return "";
+		jsonString.append("{");
+		jsonString.append("\"text\": \"<a href='/category/v_list.do' target='rightFrame'>根目录</a>\"");
+		jsonString.append(", \"classes\": \"folder\"");
+		jsonString.append(", \"expanded\":true");
+		jsonString.append(", \"children\":");
+		jsonString.append("[");
+		int i = 0;
+		for(Category category : categories){
+			if(i > 0) jsonString.append(",");
+			jsonString.append(toJSONString(category));
+			i++;
+		}
+		jsonString.append("]}]");
+		return jsonString.toString();
+	}
+	
+	private String generateTreeChildNodeString(int nodeId){
+		StringBuilder jsonString = new StringBuilder();
+		jsonString.append("[");
+		List<Category> categories = libraryCategoryService.findChildrenCategory(nodeId);
+		
+		if(categories.isEmpty()) return "";
+		
+		int i = 0;
+		for(Category category : categories){
+			if(i > 0) jsonString.append(",");
+			jsonString.append(toJSONString(category));
+			
+			i++;
+		}
+		jsonString.append("]");
+		return jsonString.toString();
+	}
+	
+	private String toJSONString(Category category){
+		StringBuilder sb = new StringBuilder();
+		sb.append(" {");
+		sb.append(" \"text\": \""+  generateLinkString(category) + "\"");
+		//if this category has childNode ,take action...
+		if(category.getIsEndNode() != 0){
+			sb.append(", \"id\": \"" + category.getId() + "\"");
+			sb.append(", \"hasChildren\":true");
+			sb.append(", \"classes\":\"folder\"");
+		}else{
+			sb.append(", \"classes\":\"file\"");
+			sb.append(",\"id\": \"" + category.getId() + "\"");
+			sb.append(", \"hasChildren\":false");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+	
+	private String generateLinkString(Category category){
+		String link = "<a href='/category/v_list.do?root=" + category.getId() + "' target='rightFrame' >" + category.getName() + "</a>";
+		return link;
+	}
+}

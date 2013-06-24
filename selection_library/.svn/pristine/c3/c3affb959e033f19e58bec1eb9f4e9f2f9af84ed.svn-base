@@ -1,0 +1,16 @@
+/**
+ * 
+ */
+package com.huayue.library.service.impl;
+
+import com.huayue.library.domain.Book;
+import com.huayue.library.service.BookManagerService;
+import com.huayue.framework.service.impl.BaseServiceImpl;
+
+/**
+ * @author lsk0414
+ *
+ */
+public class BookManagerServiceImpl extends BaseServiceImpl<Book> implements BookManagerService{
+
+}

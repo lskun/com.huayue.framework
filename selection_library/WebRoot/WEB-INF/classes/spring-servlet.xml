@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd" >
+
+	<bean class="com.huayue.framework.util.EncryptPropertyPlaceholderConfigurer"
+		p:location="classpath:jdbc.properties"
+		p:fileEncoding="UTF-8" />
+  	
+	<!-- apache.dbcp连接池的配置 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close"
+		p:driverClassName="${driverClassName}"
+		p:url="${url}"
+		p:username="${userName}"
+		p:password="${password}"
+		p:maxActive="${maxActive}"
+		p:maxIdle="${maxIdle}"
+		p:maxWait="${maxWait}"
+		p:defaultAutoCommit="${defaultAutoCommit}"
+	/>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/huayue/**/mapper/*-mapper.xml</value>
+				<value>classpath:com/huayue/**/domain/*-resultmap.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 自动扫描com.huayue.platform.mapper包下的Mapper接口,并实现其功能  -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.huayue.*.mapper" />
+		<property name="markerInterface" value="com.huayue.framework.mapper.BaseMapper" />
+	</bean>
+	
+	<!--启动事务管理器 -->
+	<bean id="transactionManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager"  p:dataSource-ref="dataSource"/>  
+	
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="update*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="batch*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="find*" propagation="SUPPORTS"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.huayue.*.service.*.*(..))" id="allTxServiceMethod"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="allTxServiceMethod"/>
+	</aop:config>
+	
+	<!-- 启动Spring注解功能 -->
+	<mvc:annotation-driven />
+
+	<!-- <tx:annotation-driven transaction-manager="transactionManager"/>  -->
+	
+	<mvc:default-servlet-handler />
+	
+	<context:component-scan base-package="com.huayue" />
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<!-- 声明上传 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="102400000" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+</beans>

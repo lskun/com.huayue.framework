@@ -1,0 +1,13 @@
+# country 国别
+country=中国,外国,中国台湾
+# genre 体裁
+genre=散文,童话,诗歌,小说,演讲,寓言
+# 表达方式
+presentation=记述,说明
+# 内容
+content=童年,学习,人文,自然,成语,景观,乡情,情感,励志,品行,名人,谦让,动物,植物
+#名家名篇
+famousMasterpiece=一般,名篇
+#时代
+times=现代文,文言文
+

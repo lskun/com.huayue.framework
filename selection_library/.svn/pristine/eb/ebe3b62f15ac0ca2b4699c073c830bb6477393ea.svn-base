@@ -1,0 +1,125 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import java.io.IOException;
+import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.huayue.framework.util.Page;
+import com.huayue.library.common.CategoryNodeHelper;
+import com.huayue.library.domain.Category;
+import com.huayue.library.domain.User;
+import com.huayue.library.service.LibraryCategoryService;
+import com.huayue.library.util.Constants;
+
+/**
+ * @author lsk0414
+ *
+ */
+@RequestMapping("category")
+@SessionAttributes("nodeMap")
+@Controller
+public class LibraryCategoryAct {
+	
+	public static final Logger log =Logger.getLogger(LibraryCategoryAct.class);
+	
+	@Autowired
+	LibraryCategoryService libraryCategoryService;
+	
+	@Autowired
+	CategoryNodeHelper nodeHelper;
+	
+	@ModelAttribute("nodeMap")
+	public Map<Integer,String> getNodeMap(){
+		return libraryCategoryService.getNodeMap();
+	}
+	
+	@RequestMapping(value="add")
+	public void addCategory(Category category,ModelMap model,HttpServletRequest request,HttpServletResponse response) throws IOException{
+		category.setUserId(((User)request.getSession().getAttribute("login_user")).getId());
+		category.setCreateTime(System.currentTimeMillis());
+		try{
+			libraryCategoryService.addObj(category);
+			response.getWriter().print("OK");
+		}catch(Exception ex){
+			response.getWriter().print(ex);
+		}
+	}
+	
+	@RequestMapping(value="main.do")
+	public String main(){
+		return "category/main";
+	}
+	
+	@RequestMapping(value="v_left.do")
+	public String left(){
+		return "category/left";
+	}
+	
+	@RequestMapping(value="v_tree.do")
+	public String tree(String root ,HttpServletResponse response ,HttpServletRequest request ,ModelMap model) {
+		log.debug("tree path={}" + root);
+		response.setHeader("Cache-Control", "no-cache");
+		response.setContentType("text/json;charset=UTF-8");
+		
+		String jsonString = nodeHelper.generateJTVJsonString(root);
+		//System.out.println(" jsonString : " + jsonString);
+		try {
+			response.getWriter().print(jsonString);
+		} catch (IOException e) {
+			log.error(e);
+			request.setAttribute(Constants.RESULT, e);
+			return "error";
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="v_list.do")
+	public String list(Integer root ,ModelMap model ){
+		List<Category> list;
+		root = root == null ? 0 : root;
+		list = libraryCategoryService.findChildrenCategory(root);
+		model.addAttribute("parentId", root);
+		model.addAttribute("categoryList", list);
+		return "category/list";
+	}
+	
+	@RequestMapping(value="find/{id}",method=RequestMethod.GET)
+	public String find(@PathVariable("id")int id){
+		
+		return "";
+	}
+	/***
+	@RequestMapping(value="searchCategories")
+	public String findByPage(HttpServletRequest request,ModelMap model){
+		Page<Category> collections = new Page<Category>();
+		collections = libraryCategoryService.showCategories(collections);
+		model.addAttribute("pagination", collections);
+		model.addAttribute(Constants.RESULT, Constants.SUCCESS);
+		return "/category/search_list";
+	}
+	***/
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

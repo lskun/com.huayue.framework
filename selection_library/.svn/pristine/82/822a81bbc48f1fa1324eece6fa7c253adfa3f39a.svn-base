@@ -1,0 +1,71 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.huayue.framework.util.Page;
+import com.huayue.library.common.NodeHelper;
+import com.huayue.library.util.Constants;
+
+import com.huayue.library.domain.Book;
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+@RequestMapping("book")
+public class BookManagerAct {
+	
+	public static final Logger log = Logger.getLogger(BookManagerAct.class);
+	
+	@Autowired
+	NodeHelper nodeHelper;
+	
+	@RequestMapping("main")
+	public String main(){	return "book/main"; }
+	
+	@RequestMapping("left")
+	public String left(){   return "book/left"; }
+	
+	@RequestMapping("b_tree.do")
+	public void tree(String root,HttpServletResponse response) throws IOException{
+		response.setHeader("Cache-Control", "no-cache");
+		response.setContentType("text/json;charset=UTF-8");
+		
+		String jsonString = nodeHelper.generateJTVJsonStringForBook(root);		
+		response.getWriter().print(jsonString);
+	}
+	
+	@RequestMapping("b_list.do")
+	public String list(Integer root,ModelMap model,HttpServletRequest request){
+		Page<Book> pagination = new Page<Book>();
+		
+		return "book/list";
+	}
+	
+	@RequestMapping("add_view")
+	public String addBook(ModelMap model){
+		
+		return "book/add";
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

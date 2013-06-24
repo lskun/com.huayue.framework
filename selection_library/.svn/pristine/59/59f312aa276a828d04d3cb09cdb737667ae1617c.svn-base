@@ -1,0 +1,20 @@
+/**
+ * 
+ */
+package com.huayue.library.dao;
+
+import java.io.Serializable;
+
+import com.huayue.framework.dao.BaseDao;
+import com.huayue.library.domain.Acticle;
+import com.huayue.library.mapper.ActicleMapper;
+
+/**
+ * @author lsk0414
+ *
+ */
+public interface ActicleManagerDao extends BaseDao<Acticle,ActicleMapper> {
+	void deleteMapping(Serializable primaryKey);
+	
+	String getDirectory(int id);
+}

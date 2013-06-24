@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- data mapping configuration -->
+<mapper namespace="entitiesMap">
+	<resultMap type="User" id="userMap">
+		<id property="id" column="id"/>
+		<result property="name" column="user_name"/>
+		<result property="password" column="password"/>
+		<result property="deptId" column="depid"/>
+		<result property="permission" column="permission"/>
+		<result property="createTime" column="create_time"/>
+		<result property="modifiedTime" column="modified_time"/>
+	</resultMap>	
+	
+	<resultMap type="Acticle" id="acticleMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="author" column="author"/>
+		<result property="countryId" column="country_id"/>
+		<result property="genre" column="genre"/>
+		<result property="presentation" column="presentation"/>
+		<result property="origin" column="origin"/>
+		<result property="firConId" column="first_content_id"/>
+		<result property="secConId" column="second_content_id"/>
+		<result property="comment" column="comment"/>
+		<result property="directory" column="directory"/>
+		<result property="suffix" column="suffix"/>
+		<result property="size" column="size"/>
+		<result property="famousMasterpiece" column="famous_masterpiece"/>
+		<result property="times" column="times"/>
+		<result property="version" column="version"/>
+		<result property="createTime" column="create_time"/>
+		<result property="userId" column="user_id"/>
+		<result property="updateTime" column="update_time"/>		
+	</resultMap>
+	
+	<resultMap type="Category" id="categoryMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="parentId" column="pid"/>
+		<result property="description" column="description"/>
+		<result property="createTime" column="create_time"/>
+		<result property="userId" column="user_id"/>
+		<result property="isEndNode" column="is_endnode"/>	
+	</resultMap>
+	
+	<resultMap type="Book" id="bookMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="author" column="author"/>
+		<result property="publisher" column="publisher"/>
+		<result property="acticleCount" column="acticle_count"/>
+		<result property="userId" column="user_id"/>
+		<result property="createTime" column="create_time"/>
+		<result property="publishDate" column="publish_date"/>
+		<result property="categoryId" column="category_id"/>
+		<result property="bookDescription" column="book_description"/>
+		<result property="hierarchicalNode" column="hierarchical_node"/>
+	</resultMap>
+	
+	<resultMap type="Book" id="bookResult">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="author" column="author"/>
+		<result property="publisher" column="publisher"/>
+		<result property="userId" column="user_id"/>
+		<result property="publishDate" column="publish_date"/>
+		<result property="bookDescription" column="book_description"/>
+		<result property="createTime" column="create_time"/>
+		<result property="categoryId" column="category_id"/>
+		<collection property="acticles" ofType="Acticle">
+			<id property="id" column="acticle_id"/>
+			<result property="name" column="acticle_name"/>
+			<result property="author" column="acticle_author"/>
+			<result property="countryId" column="acticle_country_id"/>
+			<result property="genre" column="acticle_genre"/>
+			<result property="presentation" column="acticle_presentation"/>
+			<result property="firConId" column="first_content_id"/>
+			<result property="secConId" column="second_content_id"/>
+			<result property="createTime" column="acticle_create_time"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="Acticle" id="acticleResult">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="author" column="author"/>
+		<result property="countryId" column="country_id"/>
+		<result property="genre" column="genre"/>
+		<result property="directory" column="directory"/>
+		<result property="suffix" column="suffix"/>
+		<result property="presentation" column="presentation"/>
+		<result property="origin" column="origin"/>
+		<result property="firConId" column="first_content_id"/>
+		<result property="secConId" column="second_content_id"/>
+		<result property="comment" column="comment"/>
+		<result property="famousMasterpiece" column="famous_masterpiece"/>
+		<result property="times" column="times"/>
+		<result property="version" column="version"/>
+		<collection property="books" ofType="Book">
+			<id property="id" column="book_id"/>
+			<result property="name" column="book_name"/>
+			<result property="publisher" column="book_publisher"/>
+			<result property="bookDescription" column="book_description"/>
+			<result property="categoryId" column="category_id"/>
+		</collection>
+	</resultMap>
+</mapper>

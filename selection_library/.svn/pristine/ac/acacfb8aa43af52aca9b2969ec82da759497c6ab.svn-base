@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+		<properties>
+			<property name="dialect" value="mysql"/>
+		</properties>
+		<typeAliases>
+			<typeAlias type="com.huayue.framework.util.Page" alias="Page"/>
+			<typeAlias type="com.huayue.library.domain.User" alias="User"/>
+			<typeAlias type="com.huayue.library.domain.Category" alias="Category"/>
+			<typeAlias type="com.huayue.library.domain.Book" alias="Book"/>
+			<typeAlias type="com.huayue.library.domain.Acticle" alias="Acticle" />
+			<typeAlias type="com.huayue.library.domain.Version" alias="Version" />
+		</typeAliases>
+		<plugins>
+			<plugin interceptor="com.huayue.framework.mybatis.interceptor.PaginationInterceptor"></plugin>
+		</plugins>
+	</configuration>

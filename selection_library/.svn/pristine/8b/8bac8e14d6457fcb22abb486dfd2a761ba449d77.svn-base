@@ -1,0 +1,206 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import com.huayue.framework.util.Format;
+import com.huayue.framework.util.Page;
+import com.huayue.library.domain.Acticle;
+import com.huayue.library.domain.User;
+import com.huayue.library.service.ActicleManagerService;
+import com.huayue.library.util.Constants;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+@RequestMapping("acticle")
+@SessionAttributes({"countries","genres","presentations","famousMasterPieces","times","contentMap"})
+public class ActicleManagerAct {
+	
+	private static Logger log = Logger.getLogger(ActicleManagerAct.class);
+	
+	//相关属性配置文件位置
+	private static final String PROPERTY_PATH = "/config/acticle_config.properties";
+	
+	private static String[] countries ;
+	
+	private static String[] genres;
+	
+	private static String[] presentations;
+	
+	private static String[] famousMasterPieces;
+	
+	private static String[] times;
+	
+	private static Map<Integer,String> contentMap = new HashMap<Integer,String>();
+	
+	@Autowired
+	private ActicleManagerService acticleManagerService;
+	
+	//加载属性文件
+	static{
+		InputStream is = ActicleManagerAct.class.getResourceAsStream(PROPERTY_PATH);
+		Properties properties = new Properties();
+		try {
+			properties.load(is);
+		} catch (IOException e) {
+			log.error(" acticle.properties can't found or load failed by : " + e);
+		}
+				
+		countries = properties.getProperty("country").split(",");
+		genres = properties.getProperty("genre").split(",");
+		presentations = properties.getProperty("presentation").split(",");
+		famousMasterPieces = properties.getProperty("famousMasterpiece").split(",");
+		times = properties.getProperty("times").split(",");
+		
+		String[] contents = properties.getProperty("content").split(",");
+		
+		for(int i = 0 ; i < contents.length; i++ ){
+			contentMap.put(i, contents[i]);
+		}
+		
+	}
+	
+	@ModelAttribute("countries")
+	public String[] loadCountries(){ return countries; }
+	
+	@ModelAttribute("genres")
+	public String[] loadGenres(){ return genres; }
+	
+	@ModelAttribute("presentations")
+	public String[] loadPresentations(){ return presentations; }
+	
+	@ModelAttribute("famousMasterPieces")
+	public String[] loadFamousMasterPieces(){ return famousMasterPieces; }
+	
+	@ModelAttribute("times")
+	public String[] loadTimes(){ return times ; }
+	
+	@ModelAttribute("contentMap")
+	public Map<Integer,String> loadContentMap(){ return contentMap; }
+	
+	@RequestMapping(value="addView",method=RequestMethod.GET)
+	public String addView(){ return "acticle/addActicle"; }
+	
+	@RequestMapping(value="addActicle",method= RequestMethod.POST)
+	public String addActicle(Acticle acticle,@RequestParam("file") MultipartFile multipartFile,ModelMap model,HttpServletRequest request) 
+			throws Exception, IOException {
+		File des;
+		String directory = "";
+		String target = "acticle/feedback";
+		if(!multipartFile.isEmpty()){
+			String fileName = multipartFile.getOriginalFilename();
+			directory = Constants.BASEPATH + File.separator + fileName;
+			des = new File(directory);
+			
+			//保存文件到本地路径
+			multipartFile.transferTo(des); 
+			//设置文件大小
+			acticle.setSize(multipartFile.getSize());
+			//设置文件后缀名
+			acticle.setSuffix(fileName.substring(fileName.lastIndexOf(".") + 1));
+		}
+		acticle.setDirectory(directory)	;
+		acticle.setCreateTime(System.currentTimeMillis());
+		acticle.setUserId(
+				((User)request.getSession().getAttribute("login_user")).getId());
+		
+		acticleManagerService.addObj(acticle); //}catch(Exception ex){
+		model.addAttribute(Constants.RESULT, Constants.ADD_SUCCESS_TEXT);
+		model.addAttribute("url", "acticle/showActicles.do");
+		return target;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="showActicles")
+	public String showActicles(HttpServletRequest request,ModelMap model){
+		//Page<Acticle> collections = acticleManagerService.findByPage(request, "com.huayue.library.mapper.ActicleMapper.findActicles");
+		//model.put("pagination", collections);
+		Page<Acticle> page = new Page<Acticle>();
+		
+		String strIndex = request.getParameter(Constants.PAGE_INDEX);
+		String strSize = request.getParameter(Constants.PAGE_SIZE);
+		int pageIndex = Format.isInteger(strIndex) ? Integer.parseInt(strIndex) : page.getPageIndex();
+		int pageSize = Format.isInteger(strSize) ? Integer.parseInt(strSize) : page.getPageSize();
+		page.setPageIndex(pageIndex);
+		page.setPageSize(pageSize);
+		for(java.util.Iterator iterator = request.getParameterMap().keySet().iterator() ; iterator.hasNext(); ){
+			String name = (String)iterator.next();
+			page.getParams().put(name, request.getParameter(name));
+		}
+		
+		page = acticleManagerService.findByPage(page);
+		model.addAttribute("acticlePagination", page);
+		
+		return "acticle/searchList";
+	}
+	
+	@RequestMapping(value="findByID",method=RequestMethod.GET)
+	public String showInfomationByID(@RequestParam(value="id",required=true)int id,ModelMap model) throws IOException{
+		Acticle acticle = acticleManagerService.findByID(id);
+		model.addAttribute("acticle", acticle);
+		String directory = acticle.getDirectory();
+		String content = FileUtils.readFileToString(new File(directory), "UTF-8");
+
+		model.addAttribute("fileContent", Format.toHTML(content));
+		return "acticle/info";
+	}
+	
+	@RequestMapping(value="edit/{id}",method=RequestMethod.GET)
+	public String editInformationByID(@PathVariable("id")int id,ModelMap model) throws IOException{
+		Acticle acticle = acticleManagerService.findByID(id);
+		model.addAttribute("acticle", acticle);
+		String directory = acticle.getDirectory();
+		String content = FileUtils.readFileToString(new File(directory), "UTF-8");
+		
+		model.addAttribute("fileContent", Format.toHTML(content));
+		return "acticle/editInfo";
+	}
+	
+	@RequestMapping(value="update",method=RequestMethod.POST)
+	public String updateActicle(Acticle acticle, ModelMap model){
+		acticleManagerService.update(acticle);
+		model.addAttribute(Constants.RESULT, Constants.UPDATE_SUCCESS_TEXT);
+		return "feedback";
+	}
+	
+	@RequestMapping(value="delete/{id}",method=RequestMethod.GET)
+	public void deleteActicle(@PathVariable("id")int id,HttpServletResponse response) throws IOException{
+		acticleManagerService.deleteByID(id);
+		response.getWriter().print("OK");
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

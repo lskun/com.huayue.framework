@@ -1,0 +1,181 @@
+/**
+ * 
+ */
+package com.huayue.library.control;
+
+import java.io.IOException;
+import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.huayue.framework.util.DateUtil;
+import com.huayue.framework.util.Format;
+import com.huayue.framework.util.Page;
+import com.huayue.library.common.HierarchicalRelationHelper;
+import com.huayue.library.common.NodeHelper;
+import com.huayue.library.common.TreeNode;
+import com.huayue.library.service.BookManagerService;
+import com.huayue.library.service.LibraryCategoryService;
+import com.huayue.library.util.Constants;
+
+import com.huayue.library.domain.Book;
+import com.huayue.library.domain.User;
+/**
+ * @author lsk0414
+ *
+ */
+@Controller
+@RequestMapping("book")
+public class BookManagerAct {
+	
+	public static final Logger log = Logger.getLogger(BookManagerAct.class);
+	
+	@Autowired
+	NodeHelper nodeHelper;
+	
+	@Autowired
+	BookManagerService bookManagerService;
+	
+	@RequestMapping("main")
+	public String main(){	return "book/main"; }
+	
+	@RequestMapping("left")
+	public String left(){   return "book/left"; }
+	
+	@RequestMapping("b_tree.do")
+	public void tree(String root,HttpServletResponse response) throws IOException{
+		response.setHeader("Cache-Control", "no-cache");
+		response.setContentType("text/json;charset=UTF-8");
+		
+		String jsonString = nodeHelper.generateJTVJsonStringForBook(root);		
+		response.getWriter().print(jsonString);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping("b_list.do")
+	public String list(Integer root,ModelMap model,HttpServletRequest request){
+		Page<Book> pagination = new Page<Book>();
+		HttpSession session = request.getSession();
+		//如果以POST方式提交
+		if(request.getMethod().equalsIgnoreCase("POST")){
+			String pageIndex = request.getParameter(Constants.PAGE_INDEX);
+			String pageSize = request.getParameter(Constants.PAGE_SIZE);
+			if(Format.isInteger(pageIndex)) 
+				pagination.setPageIndex(Integer.parseInt(pageIndex));
+			if(Format.isInteger(pageSize))	
+				pagination.setPageSize(Integer.parseInt(pageSize));
+			Map<String,String[]> map = request.getParameterMap();
+			if(map.size() != 0){
+				for(Map.Entry<String, String[]> entry : map.entrySet()){
+					if("stime".equals(entry.getKey()) && !StringUtils.isBlank(entry.getValue()[0])){
+						pagination.getParams().put(
+								entry.getKey(), 
+								(DateUtil.stringtoDate(entry.getValue()[0], DateUtil.LONG_DATE_FORMAT)).getTime());
+					}else if("etime".equals(entry.getKey()) && !StringUtils.isBlank(entry.getValue()[0])){
+						pagination.getParams().put(
+								entry.getKey(),
+								(DateUtil.stringtoDate(entry.getValue()[0], DateUtil.LONG_DATE_FORMAT)).getTime());
+					}else{
+						pagination.getParams().put(entry.getKey(), entry.getValue()[0]);
+					}					
+				}
+			}
+		}
+		if(root != null){
+			Map<Integer,String> mappings = (Map<Integer,String>)session.getAttribute("nodeMapping");
+			pagination.getParams().put(
+					Constants.HIERARCHICAL_RELATION, "0".equals(mappings.get(root)) ? mappings.get(root) + "," + root : mappings.get(root));
+			//pagination.getParams().put(Constants.HIERARCHICAL_RELATION, mappings.get(root) + "," + root);
+		}
+		pagination = bookManagerService.findByPage(pagination);
+		model.addAttribute("bookCollection", pagination);
+		model.addAttribute("nodeId", root);
+		return "book/list";
+	}
+	
+	@RequestMapping("add_view")
+	public String readyToAddBook(@RequestParam("nodeId")Integer nodeId ,ModelMap model ,HttpServletRequest request){
+		HttpSession session = request.getSession();
+		Set<TreeNode> set = (Set<TreeNode>)session.getAttribute("treenodes");
+		List<TreeNode> list = HierarchicalRelationHelper.getListForSelect(set, nodeId);
+		model.addAttribute("nodeList", list);
+		model.addAttribute("root", nodeId);
+		return "book/add_book";
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="add",method=RequestMethod.POST)
+	public String addBook(Book book ,ModelMap model ,HttpServletRequest request){
+		HttpSession session = request.getSession();
+		Map<Integer,String> map = (Map<Integer,String>)session.getAttribute("nodeMapping");
+		book.setUserId(((User)session.getAttribute("login_user")).getId());
+		book.setHierarchicalNode(map.get(book.getCategoryId()));
+		book.setCreateTime(System.currentTimeMillis());
+		if(!StringUtils.isBlank(request.getParameter("time"))){
+			book.setPublishDate(DateUtil.stringtoDate(request.getParameter("time"), DateUtil.LONG_DATE_FORMAT).getTime());
+		}
+		String[] acticleIds = request.getParameterValues("idss");
+		bookManagerService.addObject(book, acticleIds);
+		model.addAttribute(Constants.RESULT, Constants.ADD_SUCCESS_TEXT);
+		model.addAttribute(Constants.URL, "b_list.do");
+		return "feedback";
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="showDetail",method=RequestMethod.GET)
+	public String showDetail(@RequestParam("id")int id,ModelMap model,HttpSession session,HttpServletRequest request){
+		Book book = bookManagerService.findByID(id);
+		Map<Integer,String> map = (Map<Integer,String>)session.getAttribute("nodeMapping");
+		Map<Integer,String> nodeMap = (Map<Integer,String>)session.getAttribute("nodeMap");
+		String tag = map.get(book.getCategoryId()) == null ? "" : map.get(book.getCategoryId()) + "," + book.getCategoryId();
+		String categoryStr = "";
+		String[] arr = tag.split(",");
+		for(int i = 1;i< arr.length;i++){
+			categoryStr += nodeMap.get(Integer.parseInt(arr[i]));
+			categoryStr += " > ";
+		}
+
+		model.addAttribute("categoryStr", "".equals(categoryStr) ? "" : categoryStr.substring(0, categoryStr.length()-1));
+		model.addAttribute("book", book);
+		if(!StringUtils.isBlank(request.getParameter("type"))){
+			return "book/edit_info";
+		}
+		return "book/book_info";
+	}
+	
+	@RequestMapping(value="complexUpdate",method=RequestMethod.POST)
+	public String complexUpdate(ModelMap model,HttpServletRequest request,Book book){
+		String[] acticleIds = request.getParameterValues("idss");
+
+		bookManagerService.updateMappings(book, acticleIds);
+		model.addAttribute(Constants.RESULT, Constants.UPDATE_SUCCESS_TEXT);
+		model.addAttribute(Constants.URL, "showDetail.do?id=" + book.getId());
+		return "feedback";
+	}
+	
+	@RequestMapping("delBook")
+	public void delBook(HttpServletResponse response,@RequestParam("id")int id) throws IOException{
+		bookManagerService.deleteByID(id);
+		response.getWriter().print("OK");
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e,HttpServletRequest request){
+		request.setAttribute(Constants.RESULT, e);
+		log.error(e);
+		return "error";
+	}
+}

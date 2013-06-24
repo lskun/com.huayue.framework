@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huayue.library.mapper.CategoryMapper">
+	<insert id="addObj" parameterType="Category">
+		INSERT INTO library_category 
+			(name ,directory ,create_time ,user_id ,description ,versions)
+		VALUES 
+		    (#{name} ,#{directory} ,#{createTime} ,#{userId} ,#{description} ,#{versions})
+	</insert>	
+	<select id="showCategories" resultMap="Category">
+		SELECT 
+			id ,
+			name ,
+			directory ,
+			create_time ,
+			user_id ,
+			description ,
+			versions 
+		FROM
+			library_category		
+	</select>
+	<select id="findByPage" resultMap="Category" parameterType="Page">
+	SELECT 
+			id ,
+			name ,
+			directory ,
+			create_time ,
+			user_id ,
+			description ,
+			versions 
+		FROM
+			library_category
+	</select>
+</mapper>

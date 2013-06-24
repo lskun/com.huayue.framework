@@ -1,0 +1,23 @@
+/**
+ * 
+ */
+package com.huayue.library.util;
+
+/**
+ * @author lsk0414
+ *
+ */
+public class Constants {
+	
+	public static final String BASEPATH = "D:\\temp";
+	
+	public static final String RESULT = "result";
+	
+	public static final String SUCCESS = "OK";
+	
+	public static final String ERROR_MSG = "error_message";
+	
+	public static final String PAGE_INDEX = "pageIndex";
+	
+	public static final String PAGE_SIZE = "pageSize";
+}

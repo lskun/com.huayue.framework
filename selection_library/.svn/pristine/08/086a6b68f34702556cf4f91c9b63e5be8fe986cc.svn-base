@@ -1,0 +1,10 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@page import="com.huayue.framework.util.Utils"%>
+<%
+	String result = String.valueOf(request.getAttribute("result"));
+	if("OK".equals(result)) {
+		out.println(Utils.getTipHtml("提示信息","数据已添加成功!",null));
+	}else{
+		out.println(Utils.getTipHtml("提示信息","数据添加失败!Caused By :" + result,null));
+	}
+%>

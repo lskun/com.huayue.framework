@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huayue.library.mapper.BookMapper">
+	<sql id="bookColumns">
+		id ,name ,author ,publisher ,book_description ,hierarchical_node  ,create_time ,category_id
+	</sql>
+	<insert id="addObj" parameterType="Book">
+		INSERT INTO library_book_info 
+			(name ,author ,publisher ,user_id ,publish_date ,create_time ,category_id ,book_description ,hierarchical_node)
+		VALUES
+			(#{name} ,#{author} ,#{publisher} ,#{userId} ,#{publishDate} ,#{createTime} ,#{categoryId} ,#{bookDescription} ,#{hierarchicalNode})	
+	</insert>
+	<select id="findByPage" resultMap="bookMap" parameterType="Page">
+		SELECT 
+			<include refid="bookColumns"/>
+		FROM library_book_info 
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="params.hierarchical_relation !=null">
+				hierarchical_node like CONCAT('',#{params.hierarchical_relation},'%') 
+			</if>
+			<if test="params.bookName != null">
+				and name like CONCAT('%',#{params.bookName},'%')
+			</if>
+			<if test="params.author != null">
+				and author like CONCAT('%',#{params.author},'%')
+			</if>
+			<if test="params.publisher != null">
+				and publisher like CONCAT('%',#{params.publisher},'%')
+			</if>
+			<if test="params.stime != null">
+				and create_time &gt; #{params.stime}
+			</if>
+			<if test="params.etime != null">
+				and create_time &lt; #{params.stime}
+			</if>
+		</trim>
+		ORDER BY id DESC
+	</select>
+</mapper>    

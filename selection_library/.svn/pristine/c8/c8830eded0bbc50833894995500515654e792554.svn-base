@@ -1,0 +1,66 @@
+/**
+ * 
+ */
+package com.huayue.library.service.impl;
+
+import java.io.File;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.huayue.framework.service.impl.BaseServiceImpl;
+import com.huayue.framework.util.CharactorTool;
+import com.huayue.framework.util.Page;
+import com.huayue.library.dao.LibraryCategoryDao;
+import com.huayue.library.domain.Category;
+import com.huayue.library.service.LibraryCategoryService;
+import com.huayue.library.util.Constants;
+
+/**
+ * @author lsk0414
+ *
+ */
+@Service
+public class LibraryCategoryServiceImpl extends BaseServiceImpl<Category> implements LibraryCategoryService{
+	
+	private static Logger log = Logger.getLogger(LibraryCategoryServiceImpl.class);
+	
+	private LibraryCategoryDao libraryCategoryDao;
+	
+	@Autowired
+	public LibraryCategoryServiceImpl(LibraryCategoryDao libraryCategoryDao)
+	{
+		this.libraryCategoryDao = libraryCategoryDao;
+		setBaseDao(libraryCategoryDao);
+	}
+	
+	@Override
+	public void addObj(Category category) throws DataAccessException {
+		boolean rst = false;
+		String folder = CharactorTool.getEveryFirstSpell(category.getName());
+		rst = new File(Constants.BASEPATH + File.separator + folder).mkdir();
+		if(!rst)  log.error("build directory failed : " + folder);
+
+		libraryCategoryDao.addObj(category);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.service.LibraryCategoryService#showCategories()
+	 */
+	public Page<Category> showCategories(Page<Category> page) {
+		return libraryCategoryDao.findByPage(page);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.service.LibraryCategoryService#findChildrenCategory(int)
+	 */
+	public List<Category> findChildrenCategory(int categoryId) {
+		// TODO Auto-generated method stub
+		return libraryCategoryDao.findChildrenCategory(categoryId);
+	}
+}

@@ -1,0 +1,59 @@
+/**
+ * 
+ */
+package com.huayue.library.dao.impl;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+
+import com.huayue.framework.dao.impl.BaseDaoImpl;
+import com.huayue.framework.util.Page;
+import com.huayue.library.dao.LibraryCategoryDao;
+import com.huayue.library.domain.Category;
+import com.huayue.library.domain.Version;
+import com.huayue.library.mapper.CategoryMapper;
+/**
+ * @author lsk0414
+ *
+ */
+@Repository
+public class LibraryCategoryDaoImpl extends BaseDaoImpl<Category,CategoryMapper> implements LibraryCategoryDao {
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.dao.LibraryCategoryDao#addVersion(com.huayue.library.domain.Version)
+	 */
+	public void addVersion(Version version) {
+		// TODO Auto-generated method stub	
+	}
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.dao.LibraryCategoryDao#findChildrenCategory(int)
+	 */
+	public List<Category> findChildrenCategory(int categoryId) {
+		// TODO Auto-generated method stub
+		return getMapper().findChildrenCategory(categoryId);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.dao.LibraryCategoryDao#getNodeMap()
+	 */
+	public List<Map> getNodeMap() {
+		// TODO Auto-generated method stub
+		return getMapper().getNodeCollection();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.huayue.library.dao.LibraryCategoryDao#updateParentNodeStatus(int)
+	 */
+	public void updateParentNodeStatus(int pid) {
+		// TODO Auto-generated method stub
+		getMapper().updateParentNodeStatus(pid);
+	}
+
+}

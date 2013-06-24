@@ -1,0 +1,158 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>文章列表</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+	<script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript">
+		function GO(page) {
+			$("pageIndex").value = page;
+			$("_form").submit();
+		}
+		function GoIndex(){
+			var maxIndex = ${acticlePagination.pageCount};
+			var idx = $('index').value;
+			if(idx > maxIndex || idx <= 0)
+			{
+				idx = maxIndex;
+			} 
+			$("pageIndex").value = idx;
+			$("_form").submit();
+		}
+		  function checkJunk() {
+                var ids = document.getElementsByName("ids");
+                if(document.formJunk.selectAll.checked) {
+                    for(var i=0; i<ids.length; i++) {
+                        ids[i].checked="checked";
+                    }
+                } else {
+                    for(var i=0; i<ids.length; i++) {
+                        ids[i].checked="";
+                    }
+                }
+           }
+           
+           function delMember(){
+           		var tmp = 0;
+           		var ids = document.getElementsByName("ids");
+           		for(var i=0; i<ids.length; i++) {
+                        if(ids[i].checked) tmp += 1;
+                    }
+                if(tmp == 0) { alert('请选择要删除的记录'); return false; }  
+           		if(!confirm('您确认删除选中信息记录吗?')) return false;
+           }  
+	</script>
+</head>
+<body bgcolor="#eef2fb" style="width:100%;height:100%;">
+	<div class="box-positon">
+		<div class="rpos">当前位置: 文章管理 - 列表</div>
+		<div style="float:right;margin-right:5px;margin-top:3px;"><input class="add" type="button" onclick="location.href='${pageContext.request.contextPath}/acticle/addView.do'" value="添加"></div>
+		<div class="clear"></div>
+	</div>
+	<form id="_form" action="/acticle/showActicles.do" method="post">
+	<input type="hidden" name="pageIndex" />	
+	<div style="margin:20px;">
+		<strong>篇名:</strong><input class="input_box" type="text" name="acticleName" style="vertical-align: middle;color: #555555;width:10%;margin-left:5px;"/>
+		&nbsp;&nbsp;<strong>作者:</strong><input class="input_box" type="text" name="author" style="vertical-align: middle;color: #555555;width:5%;margin-left:5px;">
+		&nbsp;&nbsp;<strong>国别:</strong>
+						<select name="countryId" style="margin-left:5px;width:5%;">
+        		     		<option value="">--请选择--</option>
+        		     		<c:forEach items="${countries}" var="item" varStatus="status">
+        		     			<option value="${status.count - 1}">${item}</option>
+        		     		</c:forEach>
+        		     	</select>
+       &nbsp;&nbsp;<strong>体裁:</strong>
+        				<select name="genre" style="margin-left:5px;width:5%;">
+							<option value="">--请选择--</option>
+							<c:forEach items="${genres}" var="v">
+								<option value="${v}">${v}</option>
+							</c:forEach>
+						</select>
+		&nbsp;&nbsp;<strong>表达方式:</strong>
+						<select name="presentation" style="width:5%;margin-left:5px;">
+							<option value="">--请选择--</option>
+        		     		<c:forEach items="${presentations}" var="p">
+        		     			<option value="${p}">${p}</option>
+        		     		</c:forEach>
+        		     	</select>				
+		&nbsp;&nbsp;<strong>一级内容:</strong>
+						<select style="margin-left:5px;width:5%;" name="firConId">
+							<option value="">--请选择--</option>
+							<c:forEach items="${contentMap}" var="v">
+								<option value="${v.key}" >${v.value }</option>
+							</c:forEach>							    
+						</select>
+		&nbsp;&nbsp;<strong>二级内容:</strong>
+						<select style="margin-left:5px;width:5%;" name="secConId">
+							<option value="">--请选择--</option>
+							<c:forEach items="${contentMap}" var="v">
+								<option value="${v.key}" >${v.value }</option>
+							</c:forEach>							    
+						</select>
+		&nbsp;&nbsp;<input class="query" type="submit" value="查询">																     	
+	</div>
+	</form>
+	<form name="formJunk" action="" method="post">
+		<table width="98%" border="0" align="center" cellpadding="3" cellspacing="1" bgcolor="#555555">
+        <tr>
+            <td height="26" colspan="8">
+                &nbsp;&nbsp;<strong style="color: #98CAEF">文章信息详情列表</strong>
+            </td>                         
+        </tr>     
+        <tr>
+            <td bgcolor="#FFFFFF" id="_chl_0" colspan="2">
+				<table width="100%" border="0" cellpadding="3" cellspacing="1" bgcolor="#CCCCCC">
+				    <tr style="font-weight: bold" background="../images/search.gif" bgcolor="#FFFFFF">
+				    	<td width="1%" align="center"><input name="selectAll" type="checkbox" onclick="checkJunk()"></td> 
+                        <td width="1%" align="center">ID</td>
+                        <td width="1%" align="center">图标</td>                                               
+                        <td width="5%" align="center">篇名</td>
+                        <td width="3%" align="center">作者</td>
+                        <td width="4%" align="center">国别</td>
+                        <td width="2%" align="center">体裁</td>
+                        <td width="4%" align="center">表达方式</td>
+                        <td width="4%" align="center">文件大小</td>
+                        <td width="2%" align="center">添加时间</td>                     
+                        <td width="5%" align="center">操作选项</td>
+                    </tr>
+                    <c:forEach items="${acticlePagination.items}" var="acticle">
+                    <tr bgcolor="#FFFFFF" onMouseOver="style.backgroundColor='#fff8d8'" onMouseOut="style.backgroundColor='#ffffff';">
+                    	<td align="center"><input type="checkbox" value="${acticle.id}" name="ids"></td>                    	
+                    	<td align="center">${acticle.id }</td>
+                    	<td align="center"><img src="/images/filetypes/${acticle.suffix}.gif"></td>
+                    	<td align="center">${acticle.name }</td>
+                    	<td align="center">${acticle.author}</td>
+                    	<td align="center">${countries[acticle.countryId] }</td>
+                    	<td align="center">${acticle.genre }</td>
+                    	<td align="center">${acticle.presentation }</td>
+                    	<td align="center">${acticle.sizeText }</td>
+                    	<td align="center"><fmt:formatDate value="${acticle.createDateTime }" type="date"/></td>
+                    	<td align="center">
+                    		<a class="pn-opt" href="${pageContext.request.contextPath}/acticle/findByID.do?id=${acticle.id}">查看</a>
+                    		&nbsp;|&nbsp;
+                    		<a class="pn-opt" href="${pageContext.request.contextPath}/acticle/edit/${acticle.id}.do">修改</a>
+                    		&nbsp;|&nbsp;
+                    		<a class="pn-opt" onclick="if(!confirm('确定要删除吗?')) {return false;}" href="${pageContext.request.contextPath}/acticle/delete/${acticle.id}.do">删除</a>
+                    	</td>
+                    </tr>
+                    </c:forEach>
+                 </table>
+             </td>
+         </tr>
+         <tr> 
+            <td height="25" bgcolor="#FFFFFF"  align="right" colspan="2">
+                            当前共${acticlePagination.recordCount }条 当前第${acticlePagination.pageIndex }/${acticlePagination.pageCount } 页 <input type="button" class="first-page" value="首页" onclick="javascript:GO(1);"/>
+                             <input class="pre-page" type="button" value="上一页" onclick="javascript:GO(${acticlePagination.prevPage})"> 
+                             <input class="next-page" type="button" value="下一页" onclick="javascript:GO(${acticlePagination.nextPage })">
+                             <input class="last-page" type="button" value="尾页" onclick="javascript:GO(${acticlePagination.pageCount})">
+                             转到第&nbsp;<input id="index" style="width:30px;" type="text">&nbsp;页  <input type="button" class="go" value="转" onclick="javascript:GoIndex()">&nbsp;&nbsp;&nbsp;        
+            </td>
+        </tr>    
+      </table>     
+     </form>        
+</body>
+</html>

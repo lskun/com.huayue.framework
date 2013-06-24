@@ -1,0 +1,28 @@
+/**
+ * 
+ */
+package com.huayue.library.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.huayue.library.dao.BookManagerDao;
+import com.huayue.library.domain.Book;
+import com.huayue.library.service.BookManagerService;
+import com.huayue.framework.service.impl.BaseServiceImpl;
+
+/**
+ * @author lsk0414
+ *
+ */
+@Service
+public class BookManagerServiceImpl extends BaseServiceImpl<Book> implements BookManagerService{
+	
+	private BookManagerDao bookManagerDao;
+	
+	@Autowired
+	public BookManagerServiceImpl(BookManagerDao bookManagerDao){
+		setBaseDao(bookManagerDao);
+		this.bookManagerDao = bookManagerDao;
+	}
+}
