@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="CacheSession"
+  id="myeclipse.1371439904726"
+  context-root="/CacheSession"
+  j2ee-spec="5.0"
+  archive="CacheSession.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
